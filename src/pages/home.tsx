@@ -1,4 +1,4 @@
-import { ActionIcon, Anchor, Box, Button, Center, Group, Highlight, Stack, Text, Title } from "@mantine/core";
+import { ActionIcon, Anchor, Box, Button, Group, Highlight, Stack, Text, Title } from "@mantine/core";
 import { useAppContext } from "../providers/AppProvider"
 import { IconBrandGithub, IconBrandTelegram, IconBrandTwitter, IconCodePlus, IconUpload } from "@tabler/icons-react";
 import { Link } from "react-router-dom";

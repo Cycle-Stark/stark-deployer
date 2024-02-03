@@ -196,8 +196,8 @@ const DeployContract = () => {
         // const compiledClassHash = hash.computeCompiledClassHash(casm)
 
         // console.log(classHash)
-        // account?.declareAndDeploy({ contract: sierraAsString, senderAddress: address, compiledClassHash: compiledClassHash }).then((res: any) => {
-        account?.deploy([{ classHash: classHash, constructorCalldata: contractConstructor }]).then((res: any) => {
+        // account?.declareAndDeploy({ contract: sierraAsString, compiledClassHash: compiledClassHash, constructorCalldata: contractConstructor }).then((res: any) => {
+        account?.deployContract([{ classHash: classHash, constructorCalldata: contractConstructor }]).then((res: any) => {
             const currentTime = new Date()
 
             // const resp = { ...res, date: `${currentTime.toDateString()} ${currentTime.toLocaleTimeString()}`, chainId: chainId }
