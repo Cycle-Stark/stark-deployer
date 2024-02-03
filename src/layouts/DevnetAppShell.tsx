@@ -65,6 +65,7 @@ const DevnetAppShell = (props: IDevnetAppShell) => {
             backgroundRepeat: 'no-repeat',
             backgroundBlendMode: 'multiply',
             backgroundAttachment: 'fixed',
+            position: "relative"
         }}>
             <AppShell
                 navbar={{ breakpoint: 'xs', width: { base: 80, xs: 80, sm: 60, xl: 80, lg: 80 } }}

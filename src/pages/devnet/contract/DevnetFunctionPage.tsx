@@ -1,7 +1,6 @@
 import { CodeHighlight, InlineCodeHighlight } from '@mantine/code-highlight'
 import { useMantineColorScheme, useMantineTheme, Box, Stack, Title, Group, Alert, darken, Button, Loader, Badge, Text } from '@mantine/core'
 import { useForm } from '@mantine/form'
-import { modals } from '@mantine/modals'
 import { IconDownload, IconCloudUpload } from '@tabler/icons-react'
 import { DataTable } from 'mantine-datatable'
 import { useState, ReactNode, useEffect } from 'react'
@@ -14,6 +13,7 @@ import { db } from '../../../db'
 import { CallDataItem } from '../../deploy'
 import { useDevnetContractContext } from '../../../providers/DevnetContractProvider'
 import { useDevnetContext } from '../../../providers/DevnetProvider'
+import { modals } from '@mantine/modals'
 
 interface FormValues {
     callData: any[]
@@ -186,9 +186,9 @@ const DevnetFunctionPage = () => {
     }
 
     const openModal = (content: ReactNode, title: string) => {
-        return modals.open({
+        return modals.openConfirmModal({
+            // withinPortal: true,
             title,
-            mih: '400px',
             children: (
                 <>
                     <Box>

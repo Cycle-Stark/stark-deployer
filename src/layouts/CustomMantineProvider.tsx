@@ -11,7 +11,7 @@ const CustomMantineProvider = (props: ICustomMantineProvider) => {
     const { children } = props
     return (
         <MantineProvider theme={theme} >
-            <ModalsProvider>
+            <ModalsProvider >
                 <Notifications />
                 {children}
             </ModalsProvider>

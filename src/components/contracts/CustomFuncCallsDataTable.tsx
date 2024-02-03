@@ -39,7 +39,7 @@ const CustomFuncCallsDataTable = (props: ICustomFuncCallsDataTable) => {
             )
         }
     }
-
+ 
     const openModal = (content: ReactNode, title: string) => {
         return modals.open({
             title,
