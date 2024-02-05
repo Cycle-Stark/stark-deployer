@@ -82,7 +82,7 @@ const FunctionPage = () => {
                     form.insertListItem('callData', entry_obj)
                 }
                 else {
-                    entry_obj.valueType = 'felt252'
+                    entry_obj.valueType = 'felt'
                     form.insertListItem('callData', entry_obj)
                 }
             })
