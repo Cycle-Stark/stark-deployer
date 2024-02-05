@@ -81,6 +81,10 @@ const FunctionPage = () => {
                     entry_obj.valueType = 'address'
                     form.insertListItem('callData', entry_obj)
                 }
+                else {
+                    entry_obj.valueType = 'felt252'
+                    form.insertListItem('callData', entry_obj)
+                }
             })
         }
     }

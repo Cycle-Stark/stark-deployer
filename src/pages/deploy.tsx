@@ -146,7 +146,7 @@ const Deploy = () => {
     }
 
 
-    const handleDeploy = async () => {
+    const handleDeclare = async () => {
         if (!account) {
             showNotification({
                 message: "Please connect your wallet!",
@@ -310,7 +310,7 @@ enum Direction {
                     })}>
                         <Stack>
                             <Title order={3}>New Deployment</Title>
-                            <form onSubmit={form.onSubmit(_values => handleDeploy())}>
+                            <form onSubmit={form.onSubmit(_values => handleDeclare())}>
                                 <Grid>
                                 <Grid.Col span={{ md: 12 }} >
                                         <TextInput radius={'md'} placeholder="My Contract" label="Contract Name" {...form.getInputProps('contractName')} />
