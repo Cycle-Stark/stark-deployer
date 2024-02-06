@@ -81,6 +81,10 @@ const FunctionPage = () => {
                     entry_obj.valueType = 'address'
                     form.insertListItem('callData', entry_obj)
                 }
+                else if (_type === "bool") {
+                    entry_obj.valueType = 'bool'
+                    form.insertListItem('callData', entry_obj)
+                }
                 else {
                     entry_obj.valueType = 'felt'
                     form.insertListItem('callData', entry_obj)
