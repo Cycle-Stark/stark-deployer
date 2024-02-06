@@ -100,7 +100,7 @@ const DeployContract = () => {
 
 
     const handleDeclare = async () => {
-        console.log("DEclaring")
+        console.log("Declaring")
         console.log(account)
         // if (!account) {
         //     showNotification({
