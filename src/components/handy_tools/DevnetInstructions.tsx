@@ -5,17 +5,17 @@ import { CodeHighlight } from "@mantine/code-highlight"
 const instructions = [
     {
         title: 'Clone the Repo',
-        code: "git clone -b rpc-0.5.0 git@github.com:0xSpaceShard/starknet-devnet-rs.git",
+        code: "git clone https://github.com/dalmasonto/devnet-rs-for-stark-deployer",
         language: "shell"
     },
     {
         title: 'Navigate to the new folder',
-        code: "cd starknet-devnet-rs",
+        code: "cd devnet-rs-for-stark-deployer",
         language: "shell"
     },
     {
         title: 'Export required ENV variables',
-        code: `export RPC_SPEC_VERSION="0.5.0"\nexport STARKNET_VERSION="2.4.3"`,
+        code: `export RPC_SPEC_VERSION="0.5.1"\nexport STARKNET_VERSION="2.4.3"`,
         language: "ts"
     },
     {
