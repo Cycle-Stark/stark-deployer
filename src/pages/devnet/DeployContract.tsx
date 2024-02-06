@@ -100,7 +100,7 @@ const DeployContract = () => {
 
 
     const handleDeclare = async () => {
-
+        console.log("DEclaring")
         console.log(account)
         // if (!account) {
         //     showNotification({
@@ -134,10 +134,10 @@ const DeployContract = () => {
 
         // console.log(sign)
         account.declareIfNot(payload, { maxFee: BigNumber(1).multipliedBy(10 ** 18).toString() }).then((res: any) => {
-            console.log("Res: ", res)
+            console.log("Declaring Res: ", res)
             setClassHash(res?.class_hash)
         }).catch((err: any) => {
-            console.log("Error: ", err)
+            console.log("Declaring Error: ", err)
             // showNotification({
             //     message: `Failed to Declare: ${err}`,
             //     color: 'red',
@@ -157,6 +157,7 @@ const DeployContract = () => {
 
 
     async function deployContract() {
+        console.log("Deploying")
         setLoading(true)
         const call_data: any = {}
         const new_call_data: any = []
@@ -188,7 +189,7 @@ const DeployContract = () => {
 
 
         const contractCallData: CallData = new CallData(JSON.parse(sierraAsString).abi);
-        console.log(call_data)
+        console.log("Call Data: ", call_data)
         const contractConstructor: Calldata = contractCallData.compile("constructor", new_call_data);
 
 
@@ -215,7 +216,7 @@ const DeployContract = () => {
                 tx_info: { ...res, class_hash: classHash, call_data },
                 date: `${currentTime.toDateString()} ${currentTime.toLocaleTimeString()}`,
                 chainId: 'Devnet',
-                contract_address: res?.contract_address[0],
+                contract_address: res?.contract_address,
                 abi: JSON.parse(sierraAsString)
             }).then((res) => {
                 showNotification({
@@ -224,6 +225,7 @@ const DeployContract = () => {
                     icon: <IconCheck />
                 })
             }).catch((err: any) => {
+                console.log("Daving deployed contract error: ", err)
                 showNotification({
                     message: `Unable to save the new contract: ${err}`,
                     color: "red",
