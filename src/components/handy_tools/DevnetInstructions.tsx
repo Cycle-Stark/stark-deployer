@@ -15,7 +15,7 @@ const instructions = [
     },
     {
         title: 'Export required ENV variables',
-        code: `export RPC_SPEC_VERSION="0.5.1"\nexport STARKNET_VERSION="2.4.3"`,
+        code: `export RPC_SPEC_VERSION="0.5.1"\nexport STARKNET_VERSION="0.13.0"`,
         language: "ts"
     },
     {
