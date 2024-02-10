@@ -29,7 +29,7 @@ export default defineConfig({
     // produce sourcemaps for debug builds
     sourcemap: !!process.env.TAURI_DEBUG,
     rollupOptions: {
-      external: ['starknet', 'starknetkit', 'dexie'],
+      // external: ['starknet', 'starknetkit', 'dexie'],
       // plugins: [
       //   // Enable rollup polyfills plugin
       //   // used during production bundling
