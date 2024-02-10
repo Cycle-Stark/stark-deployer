@@ -1,16 +1,16 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
-import { NodeGlobalsPolyfillPlugin } from "@esbuild-plugins/node-globals-polyfill";
-import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfill'
-import rollupNodePolyFill from 'rollup-plugin-node-polyfills'
+// import { NodeGlobalsPolyfillPlugin } from "@esbuild-plugins/node-globals-polyfill";
+// import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfill'
+// import rollupNodePolyFill from 'rollup-plugin-node-polyfills'
 
 export default defineConfig({
   plugins: [react(), nodePolyfills({
     globals: {
       Buffer: true,
       global: true,
-      process: true
+      // process: true
     }
   }),],
   // prevent vite from obscuring rust errors
@@ -38,7 +38,7 @@ export default defineConfig({
       plugins: [
         // Enable rollup polyfills plugin
         // used during production bundling
-        rollupNodePolyFill()
+        // rollupNodePolyFill()
       ]
     }
   },
@@ -49,13 +49,13 @@ export default defineConfig({
       //   global: 'globalThis'
       // },
       // Enable esbuild polyfill plugins
-      plugins: [
-        NodeGlobalsPolyfillPlugin({
-          process: true,
-          buffer: true,
-        }),
-        NodeModulesPolyfillPlugin()
-      ]
+      // plugins: [
+      //   NodeGlobalsPolyfillPlugin({
+      //     process: true,
+      //     buffer: true,
+      //   }),
+      //   NodeModulesPolyfillPlugin()
+      // ]
     }
   },
 })

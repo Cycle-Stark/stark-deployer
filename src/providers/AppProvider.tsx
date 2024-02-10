@@ -87,11 +87,10 @@ const AppProvider = ({ children }: IAppProvider) => {
             dappName: "Stark Deployer",
             modalMode: 'alwaysAsk',
         });
-
-        if (connection && connection?.wallet?.isConnected) {
+        if (connection && connection?.isConnected) {
             setConnection(connection);
-            setAccount(connection?.wallet?.account);
-            setAddress(connection?.wallet?.selectedAddress);
+            setAccount(connection?.account);
+            setAddress(connection?.selectedAddress);
             appState.rpcEndpoint = form.values.rpc
         }
     };
