@@ -61,6 +61,7 @@ const AppProvider = ({ children }: IAppProvider) => {
     })
 
     async function switchNetwork(connection: any, chainId: "SN_MAIN" | "SN_GOERLI" = "SN_GOERLI") {
+        console.log(connection, chainId)
         if (connection) {
             try {
                 if (window.starknet) {
@@ -74,46 +75,25 @@ const AppProvider = ({ children }: IAppProvider) => {
                 }
 
             } catch (error) {
+                console.log(error)
                 alert("Please manually switch your wallet network to testnet and reload the page");
             }
         }
     }
 
     const connectWallet = async () => {
-        // console.log("Connecting")
-        // if (!form?.values?.rpc || form?.values?.rpc === "") {
-        //     showNotification({
-        //         message: "Could not autoconnect wallet, no RPC url!",
-        //         color: "yellow",
-        //         icon: <IconAlertTriangle />
-        //     })
-        //     return
-        // }
-        // const provider = new RpcProvider({ nodeUrl: form.values.rpc, retries: 200, });
-
-        const connection = await connect({
+        const connection: any = await connect({
             webWalletUrl: "https://web.argent.xyz",
             dappName: "Stark Deployer",
             modalMode: 'alwaysAsk',
-            // connectors: [
-            //     new InjectedConnector({
-            //         options: { id: "braavos", provider }
-            //     }),
-            // ]
-            // provider: provider,
         });
-        console.log(connection)
 
-        if (connection && connection.isConnected) {
-            setProvider(provider)
+        if (connection && connection?.wallet?.isConnected) {
             setConnection(connection);
-            setAccount(connection.account);
-            setAddress(connection.selectedAddress);
+            setAccount(connection?.wallet?.account);
+            setAddress(connection?.wallet?.selectedAddress);
             appState.rpcEndpoint = form.values.rpc
-            // close()
         }
-
-        // switchNetwork(connection)
     };
 
     const disconnectWallet = async () => {
@@ -141,16 +121,6 @@ const AppProvider = ({ children }: IAppProvider) => {
         onConfirm: () => disconnectWallet(),
     });
 
-
-    // const makeContractConnection = () => {
-    //     if (account) {
-    //         const contract = new Contract(CONTRACT_ABI, CONTRACT_ADDRESS, account)
-    //         const pragma_contract = new Contract(PRAGMA_ABI, PRAGMA_CONTRACT_ADDRESS, account)
-    //         setPragmaContract(pragma_contract)
-    //         setContract(contract)
-    //     }
-    // }
-
     const handleConnetWalletBtnClick = () => {
         if (!account) {
             // open()
@@ -160,26 +130,6 @@ const AppProvider = ({ children }: IAppProvider) => {
             openConfirmDisconnectModal()
         }
     }
-
-    // const connectToStarknet = async () => {
-    //     const provider = new RpcProvider({ nodeUrl: 'https://starknet-goerli.infura.io/v3/958e1b411a40480eacb8c0f5d640a8ec' });
-
-    //     const connection = await connect({
-    //         modalMode: "neverAsk",
-    //         webWalletUrl: "https://web.argent.xyz",
-    //         dappName: "Cycle Stark",
-    //         provider: provider
-    //     });
-
-    //     if (connection && connection.isConnected) {
-    //         setConnection(connection);
-    //         setAccount(connection.account);
-    //         setAddress(connection.selectedAddress);
-    //     }
-    //     // switchNetwork(connection)
-
-    // };
-
 
     const contextValue = useMemo(() => ({
         switchNetwork,
@@ -195,10 +145,6 @@ const AppProvider = ({ children }: IAppProvider) => {
     useEffect(() => {
         connectWallet();
     }, []);
-
-    // useEffect(() => {
-    //     makeContractConnection()
-    // }, [account, address])
 
     useEffect(() => {
         setIsSmallScreen(matches)

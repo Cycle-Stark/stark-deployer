@@ -10,11 +10,11 @@ export interface ICustomNavLinkProps {
 }
 
 export const navlinks: ICustomNavLinkProps[] = [
-    // {
-    //     to: '/',
-    //     title: 'Home',
-    //     icon: <IconHomeEco stroke={1.5} />
-    // },
+    {
+        to: '/',
+        title: 'Home',
+        icon: <IconHomeEco stroke={1.5} />
+    },
     {
         to: '/production-testnet',
         title: 'Prod & Testnet',
@@ -25,21 +25,6 @@ export const navlinks: ICustomNavLinkProps[] = [
         title: 'Devnet',
         icon: <IconHomeEco stroke={1.5} />
     },
-    // {
-    //     to: '/collectives',
-    //     title: 'Collectives',
-    //     icon: <IconUsersGroup stroke={1.5} style={{ width: rem(14), height: rem(14) }} />
-    // },
-    // {
-    //     to: '/create/collective',
-    //     title: 'Create Collective',
-    //     icon: <IconPlus stroke={1.5} style={{ width: rem(14), height: rem(14) }} />
-    // },
-    // {
-    //     to: '/my-collectives',
-    //     title: 'My Collectives',
-    //     icon: <IconUserHeart stroke={1.5} style={{ width: rem(14), height: rem(14) }} />
-    // },
 ]
 
 const CustomNavLink = ({ to, title }: ICustomNavLinkProps) => {

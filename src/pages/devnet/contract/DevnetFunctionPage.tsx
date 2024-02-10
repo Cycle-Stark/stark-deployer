@@ -92,7 +92,7 @@ const DevnetFunctionPage = () => {
             })
         }
     }
-
+ 
     function callFunc() {
         setLoading(true)
         setResult(null)

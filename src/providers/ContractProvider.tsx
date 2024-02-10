@@ -1,13 +1,14 @@
 import { createContext, useContext, ReactNode, useMemo, useState, useEffect } from "react"
 import { useAppContext } from "./AppProvider"
-import { Contract } from "starknet"
-import { URLS } from "../configs/config"
+import { Contract, RpcProvider } from "starknet"
 import { db } from "../db"
 import { showNotification } from "@mantine/notifications"
 import { IconCheck } from "@tabler/icons-react"
-import axios from "axios"
 import { useParams } from "react-router-dom"
 import { useLiveQuery } from "dexie-react-hooks"
+import { Button, Group, Modal, Stack, TextInput } from "@mantine/core"
+import { useForm } from "@mantine/form"
+import { useDisclosure } from "@mantine/hooks"
 
 
 const initialData = {
@@ -20,7 +21,8 @@ const initialData = {
     extra_functions: null as any,
     get_function_info: null as any,
     connectContract: null as any,
-    contract_id: null as any
+    contract_id: null as any,
+    reLoadAbi: null as any,
 }
 
 interface IContractProvider {
@@ -53,8 +55,18 @@ const ContractProvider = (props: IAppProvider) => {
     const { contract_id } = useParams()
     const [deployment, setDeployment] = useState<any | null>(null)
     const [contract, setContract] = useState<any | null>()
+    const [opened, { close, open }] = useDisclosure(false);
 
     const _deployment = useLiveQuery(() => db.contracts.get(Number(contract_id ?? '0')));
+
+    const form = useForm({
+        initialValues: {
+            endpoint: ''
+        },
+        validate: {
+            endpoint: val => val === '' || val?.length < 5 ? 'Please enter valid endpoint' : null
+        }
+    })
 
     const makeContractConnection = () => {
         if (account && deployment?.abi) {
@@ -64,10 +76,12 @@ const ContractProvider = (props: IAppProvider) => {
         }
     }
 
-    const loadAbi = () => {
-        const id: any = contract_id
-        axios.get(`${URLS.abi_endpoint}/${deployment?.contract_address}`).then((res: any) => {
-            db.contracts.update(Number(id), { abi: res?.data }).then((_res: any) => {
+    const handleLoadABI = async () => {
+        const provider = new RpcProvider({ nodeUrl: form.values.endpoint, retries: 200, });
+        if (provider) {
+            const new_abi = await provider.getClassAt(deployment?.contract_address)
+            const id: any = contract_id
+            db.contracts.update(Number(id), { abi: new_abi }).then((_res: any) => {
                 showNotification({
                     message: "Updated contract abi",
                     color: "green",
@@ -75,17 +89,21 @@ const ContractProvider = (props: IAppProvider) => {
                 })
                 window.location.reload()
             }).catch((err: any) => {
+                showNotification({
+                    title: 'Unable to reload abi',
+                    message: `${err}`,
+                    color: 'red'
+                })
                 console.error("error", err)
             })
-        }).catch(() => { })
+        }
     }
 
-    // const loadDeployment = () => {
-    //     const id: any = contract_id
-    //     db.contracts.get(Number(id)).then((res: any) => {
-    //         setDeployment(res)
-    //     }).catch(() => { })
-    // }
+
+
+    const reLoadAbi = () => {
+        open()
+    }
 
     const getInterfaces = () => {
         const interfaces = deployment?.abi?.abi?.filter((item: any) => item?.type === 'interface') ?? []
@@ -122,18 +140,13 @@ const ContractProvider = (props: IAppProvider) => {
         extra_functions: getExtraFunctions(),
         get_function_info: getFunctionInfo,
         connectContract: makeContractConnection,
+        reLoadAbi,
         contract_id
     }), [contract_id, account, deployment, contract]);
 
-    // useEffect(() => {
-    //     if (!deployment) {
-    //         loadDeployment()
-    //     }
-    // }, [contract_id])
-
     useEffect(() => {
         if (deployment && !deployment?.abi) {
-            loadAbi()
+            reLoadAbi()
         }
     }, [deployment])
 
@@ -142,7 +155,7 @@ const ContractProvider = (props: IAppProvider) => {
     }, [account, contract_id, deployment])
 
     useEffect(() => {
-        if(_deployment){
+        if (_deployment) {
             setDeployment(_deployment)
         }
     }, [_deployment])
@@ -150,6 +163,16 @@ const ContractProvider = (props: IAppProvider) => {
     return (
         <ContractContext.Provider value={contextValue}>
             {children}
+            <Modal opened={opened} onClose={close} radius={'md'} title="Reload contract ABI">
+                <form onSubmit={form.onSubmit(_values => handleLoadABI())}>
+                    <Stack gap={10}>
+                        <TextInput label="RPC Endpoint" {...form.getInputProps('endpoint')} placeholder="https://starknet-goerli..." />
+                        <Group justify="center">
+                            <Button type="submit" radius={'md'}>Reload</Button>
+                        </Group>
+                    </Stack>
+                </form>
+            </Modal>
         </ContractContext.Provider>
     )
 }

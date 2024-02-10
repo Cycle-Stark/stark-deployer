@@ -20,11 +20,18 @@ export interface FunctionCall{
   error?: any
 }
 
+export interface INote{
+  id?: number
+  note: string
+  title: string
+}
+
 export class StarkDeployerDexie extends Dexie {
   contracts!: Table<Contract>
   function_calls!: Table<FunctionCall>
   devnet_contracts!: Table<Contract>
   devnet_function_calls!: Table<FunctionCall>
+  notes!: Table<INote>
 
   constructor() {
     super('starkDeployerDb');
@@ -45,6 +52,12 @@ export class StarkDeployerDexie extends Dexie {
     });
     this.version(6).stores({
       devnet_function_calls:  '++id, [contract_address+function_name], function_name, contract_address'
+    });
+    this.version(7).stores({
+      notes:  '++id, note'
+    });
+    this.version(8).stores({
+      notes:  '++id, note, title'
     });
   }
 }

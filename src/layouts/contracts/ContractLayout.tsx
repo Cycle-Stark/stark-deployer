@@ -1,9 +1,9 @@
-import { ActionIcon, AppShell, Box, Burger, Group, ScrollArea, SegmentedControl, Stack, Tabs, Text, TextInput, Title, useMantineColorScheme, useMantineTheme } from '@mantine/core';
+import { ActionIcon, AppShell, Box, Burger, Button, Group, ScrollArea, SegmentedControl, Stack, Tabs, Text, TextInput, Title, useMantineColorScheme, useMantineTheme } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import ContractProvider, { useContractContext } from '../../providers/ContractProvider';
 import { getInterfaceName, isDarkMode, limitChars } from '../../configs/utils';
 import CustomSidebarNavLink from '../../components/navigation/CustomSidebarNavLink';
-import { IconAdjustmentsHorizontal, IconCodeAsterix, IconDashboard, IconEye, IconHome, IconSearch, IconTransactionBitcoin, IconWriting, IconX } from '@tabler/icons-react';
+import { IconAdjustmentsHorizontal, IconCodeAsterix, IconDashboard, IconEye, IconHome, IconReload, IconSearch, IconTransactionBitcoin, IconWriting, IconX } from '@tabler/icons-react';
 import ColorSchemeToggle from '../../components/ColorSchemeToggle';
 import { useForm } from '@mantine/form';
 import ApproveTool from '../../components/handy_tools/ApproveTool';
@@ -11,6 +11,7 @@ import ConvertToLargeNumber from '../../components/handy_tools/ConvertToLargeNum
 import CustomAccordion, { AccordionItem } from '../../components/common/CustomAccordion';
 import AboutContract from '../../components/handy_tools/AboutContract';
 import AppProvider from '../../providers/AppProvider';
+import QuickNotes from '../../components/handy_tools/QuickNotes';
 
 interface IContractLayout {
     children: React.ReactNode
@@ -21,7 +22,7 @@ const ContractAppShell = (props: IContractLayout) => {
     const { children } = props
     const [opened, { toggle }] = useDisclosure();
     const aside = useDisclosure(true);
-    const { interfaces, deployment, functions, extra_functions } = useContractContext()
+    const { interfaces, deployment, functions, extra_functions, reLoadAbi } = useContractContext()
     const { colorScheme } = useMantineColorScheme()
     const theme = useMantineTheme()
 
@@ -39,6 +40,13 @@ const ContractAppShell = (props: IContractLayout) => {
             label: 'About Contract',
             description: 'A quick information about the current contract',
             content: <AboutContract color='orange' />,
+        },
+        {
+            id: 'notes',
+            image: 'https://img.icons8.com/clouds/256/000000/futurama-bender.png',
+            label: 'Notes',
+            description: 'A quick way to save different notes',
+            content: <QuickNotes color='yellow' />,
         },
         {
             id: 'approver',
@@ -91,6 +99,7 @@ const ContractAppShell = (props: IContractLayout) => {
                             icon={<IconCodeAsterix />}
                             color={'violet'}
                         />
+                        <Button radius={'md'} variant='light' leftSection={<IconReload />} color='violet' onClick={reLoadAbi}>Reload ABI</Button>
                         <SegmentedControl color='violet' radius={'md'} mt="sm" data={[
                             { value: "all", label: "All" },
                             { value: "write", label: "Write" },

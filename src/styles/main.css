@@ -121,3 +121,20 @@ body {
 .text-center {
   text-align: center;
 }
+
+
+.embla {
+  overflow: hidden;
+}
+.embla__container {
+  display: flex;
+  flex: 1;
+  justify-content: start;
+  /* overflow: hidden; */
+}
+.embla__slide {
+  flex: 0 0 200px;
+  /* flex: content; */
+  margin-right: 10px;
+  min-width: 0;
+}

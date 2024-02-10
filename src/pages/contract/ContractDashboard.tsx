@@ -63,7 +63,9 @@ const ContractDashboard = () => {
                 <Title>{deployment?.name}</Title>
                 <Text size="sm" c="dimmed">Date added: {deployment?.date}</Text>
                 <Alert title="Contract Address" radius={'md'}>
-                    <CodeHighlight style={{ borderRadius: '10px' }} language="md" code={deployment?.contract_address ?? ""} />
+                    <Box w={'100%'}>
+                        <CodeHighlight withCopyButton={true} style={{ borderRadius: '10px' }} language="md" code={deployment?.contract_address ?? ""} />
+                    </Box>
                 </Alert>
                 <Grid>
                     <Grid.Col span={{ md: 3 }}>

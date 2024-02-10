@@ -70,6 +70,7 @@ const DevnetProvider = ({ children }: IDevnetProvider) => {
         axios.get(`${RPC_ENDPOINT}/predeployed_accounts`).then((res) => {
             setAccounts(res?.data)
         }).catch((_err: any) => {
+            setDevnetServerStatus(false)
             showNotification({
                 title: "Loading accounts",
                 message: "Unable to load accounts from devnet",

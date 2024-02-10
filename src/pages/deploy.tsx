@@ -4,7 +4,7 @@ import { ActionIcon, Box, Button, Code, Container, Divider, FileInput, Grid, Gro
 import { useForm } from "@mantine/form"
 import { IconAlertTriangle, IconCheck, IconCloudUpload, IconInfoCircle, IconPlus, IconTrash, IconX } from "@tabler/icons-react"
 import { useAppContext } from "../providers/AppProvider"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { CairoCustomEnum, CallData, DeclareContractPayload, hash } from "starknet"
 import { showNotification } from "@mantine/notifications"
 import { isDarkMode } from "../configs/utils"
@@ -13,6 +13,7 @@ import { modals } from "@mantine/modals"
 import { CodeHighlight } from '@mantine/code-highlight';
 import { readFileAsString } from "../configs/readAsFileString"
 import { db } from "../db"
+import CustomCopyBtn from "../components/handy_tools/CustomCopyBtn"
 
 // Infura: https://starknet-goerli.infura.io/v3/958e1b411a40480eacb8c0f5d640a8ec
 // Sepolia: https://starknet-sepolia.infura.io/v3/936b5b98923b44289fa0dd1154d85f00
@@ -103,7 +104,7 @@ interface FormValues {
 }
 
 const Deploy = () => {
-    const {  account, chainId, connection } = useAppContext()
+    const { account, chainId } = useAppContext()
     const [loading, setLoading] = useState(false)
     const { colorScheme } = useMantineColorScheme()
     const [classHash, setClassHash] = useState<string | null>(null)
@@ -171,7 +172,7 @@ const Deploy = () => {
             compiledClassHash
         }
 
-        connection.account.declareIfNot(payload).then((res: any) => {
+        account?.declareIfNot(payload).then((res: any) => {
             setClassHash(res?.class_hash)
         }).catch((err: any) => {
             showNotification({
@@ -212,14 +213,6 @@ const Deploy = () => {
         account.declareAndDeploy({ contract: sierraAsString, casm, constructorCalldata: contractConstructor }).then((res: any) => {
             const currentTime = new Date()
 
-            // const resp = { ...res, date: `${currentTime.toDateString()} ${currentTime.toLocaleTimeString()}`, chainId: chainId }
-            // if (snap?.deployments) {
-            //     appState.deployments.push(resp)
-            // }
-            // else {
-            //     appState.deployments = [resp]
-            // }
-
             db.contracts.add({
                 name: form.values.contractName,
                 tx_info: res,
@@ -233,6 +226,7 @@ const Deploy = () => {
                     color: "green",
                     icon: <IconCheck />
                 })
+                window.location.reload()
             }).catch((err: any) => {
                 showNotification({
                     message: `Unable to save the new contract: ${err}`,
@@ -257,6 +251,7 @@ const Deploy = () => {
         })
 
     }
+
     const EnumCode = `
 #[derive(Drop)]
 enum Direction {
@@ -284,19 +279,6 @@ enum Direction {
         )
     })
 
-    useEffect(() => {
-        // console.log("Invoked")
-        if (classHash) {
-            // console.log("Starting deployment")
-            deployContract()
-        }
-    }, [classHash])
-
-    // useEffect(() => {
-    //     // console.log(connection)
-    // }, [])
-
-
     return (
         <div>
             <Container size={"md"}>
@@ -312,7 +294,7 @@ enum Direction {
                             <Title order={3}>New Deployment</Title>
                             <form onSubmit={form.onSubmit(_values => handleDeclare())}>
                                 <Grid>
-                                <Grid.Col span={{ md: 12 }} >
+                                    <Grid.Col span={{ md: 12 }} >
                                         <TextInput radius={'md'} placeholder="My Contract" label="Contract Name" {...form.getInputProps('contractName')} />
                                     </Grid.Col>
                                     <Grid.Col span={{ md: 6 }} >
@@ -342,9 +324,27 @@ enum Direction {
                                             </Group>
                                         </Stack>
                                     </Grid.Col>
+                                    {
+                                        classHash ? (
+                                            <Grid.Col span={{ md: 12 }}>
+                                                <Title order={3} mb="md">Declared Class Hash</Title>
+                                                <Group>
+                                                    <CustomCopyBtn color="blue" copy_value={classHash} />
+                                                    <Text>
+                                                        {classHash}
+                                                    </Text>
+                                                </Group>
+                                            </Grid.Col>
+                                        ) : null
+                                    }
                                     <Grid.Col span={{ md: 12 }}>
                                         <Group justify="center">
-                                            <Button size="sm" radius={'md'} leftSection={<IconCloudUpload />} type="submit" rightSection={loading ? <Loader color="white" size={'xs'} /> : null}>Deploy</Button>
+                                            <Button size="sm" radius={'md'} leftSection={<IconCloudUpload />} type="submit" rightSection={loading ? <Loader color="white" size={'xs'} /> : null}>Declare</Button>
+                                            {
+                                                classHash ? (
+                                                    <Button size="sm" radius={'md'} leftSection={<IconCloudUpload />} onClick={deployContract} rightSection={loading ? <Loader color="white" size={'xs'} /> : null}>Deploy</Button>
+                                                ) : null
+                                            }
                                         </Group>
                                     </Grid.Col>
                                 </Grid>

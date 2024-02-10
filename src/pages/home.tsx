@@ -2,6 +2,8 @@ import { ActionIcon, Anchor, Box, Button, Group, Highlight, Stack, Text, Title }
 import { useAppContext } from "../providers/AppProvider"
 import { IconBrandGithub, IconBrandTelegram, IconBrandTwitter, IconCodePlus, IconUpload } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
+import { TokensTable } from "tokenkit";
+
 
 
 const Home = () => {
@@ -41,9 +43,10 @@ const Home = () => {
               </ActionIcon>
             </Anchor>
           </Group>
+          <TokensTable />
         </Stack>
-      </Box>
-    </div>
+      </Box >
+    </div >
   )
 }
 

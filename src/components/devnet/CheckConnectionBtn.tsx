@@ -7,7 +7,9 @@ const CheckConnectionBtn = () => {
     const {devnetServerStatus} = useDevnetContext()
 
     useEffect(() => {
-        setServerStatus(devnetServerStatus)
+        if(devnetServerStatus){
+            setServerStatus(devnetServerStatus)
+        }
     }, [devnetServerStatus])
     return (
         <div>

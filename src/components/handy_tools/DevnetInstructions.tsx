@@ -37,6 +37,8 @@ const Instruction = (props: any) => {
 }
 
 const DevnetInstructions = () => {
+
+    console.log(JSON.parse("{\"pub_key\":{\"x\":\"d799d411e8d0166499b173e2af333cb832e40528f166af321c8bed8af428b37a\",\"y\":\"cf7e1e974b587bf44f0c037dcdd8202cf569c3b305899c464b2671514824c79c\"},\"mode\":\"secured-signer\",\"type\":2,\"address\":\"0x5411c4fa52c0ca5de38b1af0329fcb71c38761af7c828da83dc5bd495e4571e\",\"network\":\"mainnet-alpha\"}"))
     return (
         <div>
             <WrapperBox color="indigo">
@@ -57,3 +59,11 @@ const DevnetInstructions = () => {
 }
 
 export default DevnetInstructions
+
+// braavos://invoke/
+// 0x05411c4fa52c0ca5de38b1af0329fcb71c38761af7c828da83dc5bd495e4571e
+// @SN_MAIN?
+// source=wallet&
+// calls=
+// NobwRAxg9gdgLgJwIYTgQQCYYQUwM55gBcYADAB4CsAzBAJwCMATDQEb0BsAHExKQCx0mdCElJMcGUqVbUc-JtQBmHAOwNSGCTlU5NlHK1akOSuRDPckXMABowOeAgCeABygBLeMTCIkMPCUcBDtIJAAbcIwkOCRiYDJyUlVNJBwufhxKJTosyly01komJS4GJSUIJlUuSlVWfgYcRlVuHCR+flUlVjoMjn4kBn4MHD1WDgZQjWlZ2dDSMABdAF8loA
+// &rid=1707325692822-5077035917689&ttl=1707325882871;
