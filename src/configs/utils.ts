@@ -70,16 +70,11 @@ export function getRealPrice(val: any) {
 }
 
 export function formatNumberInternational(number: number) {
-    // Check if the Intl.NumberFormat is supported in the browser
     const DECIMALS = 4
     if (typeof Intl.NumberFormat === 'function') {
-        // Format the number using the "en-US" locale
         const formatter = new Intl.NumberFormat('en-US', { minimumFractionDigits: DECIMALS, maximumFractionDigits: DECIMALS });
         return formatter.format(number);
     } else {
-        // Fallback for browsers that do not support Intl.NumberFormat
-        console.warn('Intl.NumberFormat is not supported in this browser. Fallback may not provide accurate formatting.');
-        // You can implement a custom fallback logic here if needed
         return number.toLocaleString('en-US');
     }
 }
@@ -127,7 +122,6 @@ export function extractTypeFromString(inputString: string) {
 // const inputString = 'core::array::Array::<cycle_stark::interfaces::StarkCollective>';
 // const extractedType = extractTypeFromString(inputString);
 
-// console.log(extractedType); // Output: StarkCollective
 // const getStruct = (abi: any, _struct: any) => {
 //     if (!abi || !_struct) return null
 //     let _structs = abi?.filter((entry: any) => entry?.name.includes(_struct))
@@ -187,7 +181,6 @@ export function JSONSerializer(value: any, _functionInfo?: any, _abi?: any) {
     //                 value[i] = bigintToLongStrAddress(value[i])
     //             }
     //             else if (isArrayType === 'felt252') {
-    //                 // console.log("FELT: ", value[i])
     //                 value[i] = bigintToShortStr(value[i])
     //             }
     //             else if (isArrayType === 'bool') {
@@ -200,7 +193,6 @@ export function JSONSerializer(value: any, _functionInfo?: any, _abi?: any) {
     //         return JSON.stringify(value, null, 4)
     //     }
     //     else if (!known_outputs.includes(output)) {
-    //         // console.log("Didnt")
     //         struct = getStruct(abi, output)
     //         if (struct && value) {
     //             Object.keys(value).forEach((key_: any) => {
@@ -212,7 +204,6 @@ export function JSONSerializer(value: any, _functionInfo?: any, _abi?: any) {
     //                     value[key_] = bigintToLongStrAddress(value[key_])
     //                 }
     //                 else if (key_type === 'felt252') {
-    //                     // console.log("FELT: ", value[key_])
     //                     value[key_] = bigintToShortStr(value[key_])
     //                 }
     //                 else if (key_type === 'bool') {
@@ -251,7 +242,6 @@ export function JSONSerializer(value: any, _functionInfo?: any, _abi?: any) {
 // }
 
 export function loadFuncReturnTypes(functionInfo: any) {
-    // console.log(contract)
     let output = ''
     if (functionInfo?.outputs?.length === 1) {
         let _output = functionInfo?.outputs[0]

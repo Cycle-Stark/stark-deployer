@@ -72,7 +72,6 @@ const DevnetContractProvider = (props: IAppProvider) => {
         //         })
         //         window.location.reload()
         //     }).catch((err: any) => {
-        //         console.error("error", err)
         //     })
         // }).catch(() => { })
     }

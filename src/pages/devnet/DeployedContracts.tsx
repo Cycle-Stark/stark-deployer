@@ -20,7 +20,6 @@ const DevnetDeploymentCard = (props: IDevnetDeploymentCard) => {
   const { account } = useDevnetContext()
 
   const checkIfContractExists = async () => {
-    // console.log("info: ", info)
     account?.getClassAt(info?.contract_address).then((_res: any) => {
       setIsFound(true)
     }).catch((_err: any) => {

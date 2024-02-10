@@ -94,7 +94,6 @@ const ContractProvider = (props: IAppProvider) => {
                     message: `${err}`,
                     color: 'red'
                 })
-                console.error("error", err)
             })
         }
     }

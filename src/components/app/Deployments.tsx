@@ -74,7 +74,6 @@ const DeploymentCard = (props: IDeploymentCard) => {
     const { info } = props
     const [opened, { open, close }] = useDisclosure(false);
     const { colorScheme } = useMantineColorScheme()
-    // console.log(info)
     return (
         <Box p="lg" style={theme => ({
             background: isDarkMode(colorScheme) ? theme.colors.dark[5] : theme.colors.gray[0],

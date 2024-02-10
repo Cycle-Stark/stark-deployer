@@ -61,7 +61,6 @@ const AppProvider = ({ children }: IAppProvider) => {
     })
 
     async function switchNetwork(connection: any, chainId: "SN_MAIN" | "SN_GOERLI" = "SN_GOERLI") {
-        console.log(connection, chainId)
         if (connection) {
             try {
                 if (window.starknet) {
@@ -75,7 +74,6 @@ const AppProvider = ({ children }: IAppProvider) => {
                 }
 
             } catch (error) {
-                console.log(error)
                 alert("Please manually switch your wallet network to testnet and reload the page");
             }
         }

@@ -4,10 +4,9 @@ import { useDevnetContext } from "../../providers/DevnetProvider"
 
 const CheckConnectionBtn = () => {
     const [serverStatus, setServerStatus] = useState(false)
-    const {devnetServerStatus} = useDevnetContext()
-
+    const { devnetServerStatus } = useDevnetContext()
     useEffect(() => {
-        if(devnetServerStatus){
+        if (devnetServerStatus) {
             setServerStatus(devnetServerStatus)
         }
     }, [devnetServerStatus])

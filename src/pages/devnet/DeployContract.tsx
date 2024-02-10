@@ -61,8 +61,6 @@ const DeployContract = () => {
     const { colorScheme } = useMantineColorScheme()
     const [classHash, setClassHash] = useState<string | null>(null)
 
-    // console.log(account, provider)
-
     const form = useForm<FormValues>({
         initialValues: {
             contractName: "Contract name",
@@ -100,8 +98,6 @@ const DeployContract = () => {
 
 
     const handleDeclare = async () => {
-        console.log("Declaring")
-        console.log(account)
         // if (!account) {
         //     showNotification({
         //         message: "Please connect your wallet!",
@@ -120,7 +116,6 @@ const DeployContract = () => {
         // const compiledClassHash = hash.computeCompiledClassHash(casm)
 
         // const sign: Signature = await signMessageTogetSignature(account, "DECLARE", false)
-        // console.log(address)
 
         const payload: any = {
             contract: JSON.parse(sierraAsString),
@@ -131,33 +126,17 @@ const DeployContract = () => {
             // compiledClassHash
         }
 
-
-        // console.log(sign)
         account.declareIfNot(payload, { maxFee: BigNumber(1).multipliedBy(10 ** 18).toString() }).then((res: any) => {
-            console.log("Declaring Res: ", res)
             setClassHash(res?.class_hash)
-        }).catch((err: any) => {
-            console.log("Declaring Error: ", err)
-            // showNotification({
-            //     message: `Failed to Declare: ${err}`,
-            //     color: 'red',
-            //     icon: <IconAlertTriangle />
-            // })
+        }).catch(() => {
             setClassHash(null)
         })
-
-        // account.declareAndDeploy({ contract: sierraAsString, casm: casmAsString, classHash: _classHash, compiledClassHash }).then((res: any) => {
-        //     console.log("Results: ", res)
-        // }).catch((err: any) => {
-        //     console.log("Error: ", err)
-        // })
 
         setLoading(false)
     }
 
 
     async function deployContract() {
-        console.log("Deploying")
         setLoading(true)
         const call_data: any = {}
         const new_call_data: any = []
@@ -189,14 +168,12 @@ const DeployContract = () => {
 
 
         const contractCallData: CallData = new CallData(JSON.parse(sierraAsString).abi);
-        console.log("Call Data: ", call_data)
         const contractConstructor: Calldata = contractCallData.compile("constructor", new_call_data);
 
 
         // const contractConstructor = CallData.compile(new_call_data)
         // const compiledClassHash = hash.computeCompiledClassHash(casm)
 
-        // console.log(classHash)
         // account?.declareAndDeploy({ contract: sierraAsString, compiledClassHash: compiledClassHash, constructorCalldata: contractConstructor }).then((res: any) => {
         account?.deployContract([{ classHash: classHash, constructorCalldata: contractConstructor }]).then((res: any) => {
             const currentTime = new Date()
@@ -208,8 +185,6 @@ const DeployContract = () => {
             // else {
             //     appState.deployments = [resp]
             // }
-
-            console.log("Devnet contract deployment: ", res)
 
             db.devnet_contracts.add({
                 name: form.values.contractName,
@@ -225,7 +200,6 @@ const DeployContract = () => {
                     icon: <IconCheck />
                 })
             }).catch((err: any) => {
-                console.log("Daving deployed contract error: ", err)
                 showNotification({
                     message: `Unable to save the new contract: ${err}`,
                     color: "red",
@@ -236,7 +210,6 @@ const DeployContract = () => {
             form.reset()
             setClassHash(null)
         }).catch((err: any) => {
-            console.log("Error: ", err)
             showNotification({
                 message: `Failed to Deploy: ${err}`,
                 color: 'red',

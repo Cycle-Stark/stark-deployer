@@ -31,7 +31,7 @@ const DevnetProvider = ({ children }: IDevnetProvider) => {
     const [account, setAccount] = useState<null | any>();
     const [address, setAddress] = useState<null | any>("");
     const [isSmallScreen, setIsSmallScreen] = useState<boolean | any>(false)
-    const [devnetServerStatus, setDevnetServerStatus] = useState(true)
+    const [devnetServerStatus, setDevnetServerStatus] = useState(false)
 
     const [accounts, setAccounts] = useState<any>([])
 
