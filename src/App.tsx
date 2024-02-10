@@ -21,9 +21,6 @@ import DevnetContractTransactions from "./pages/devnet/contract/DevnetContractTr
 import DevnetContractAbi from "./pages/devnet/contract/DevnetContractAbi";
 import DevnetFunctionPage from "./pages/devnet/contract/DevnetFunctionPage";
 import DevnetDashboard from "./pages/devnet/DevnetDashboard";
-import { TokenKitWrapper } from "tokenkit";
-// import { invoke } from '@tauri-apps/api'
-// import { useEffect, useState } from "react";
 
 import "@mantine/core/styles.css";
 import '@mantine/dates/styles.css';
@@ -55,7 +52,6 @@ function App() {
   return (
     <>
       <CustomMantineProvider>
-        <TokenKitWrapper usingMantine={true}>
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<MainLayout><Home /> </MainLayout>} />
@@ -85,7 +81,6 @@ function App() {
               <Route path="*" element={<MainLayout><NotFound /></MainLayout>} />
             </Routes>
           </BrowserRouter>
-        </TokenKitWrapper>
       </CustomMantineProvider>
     </>
   )
