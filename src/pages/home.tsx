@@ -1,13 +1,13 @@
 import { ActionIcon, Anchor, Box, Button, Group, Highlight, Stack, Text, Title } from "@mantine/core";
 import { useAppContext } from "../providers/AppProvider"
-import { IconBrandGithub, IconBrandTelegram, IconBrandTwitter, IconCodePlus, IconUpload } from "@tabler/icons-react";
+import { IconBrandGithub, IconBrandTelegram, IconBrandTwitter, IconCodePlus, IconDownload, IconUpload } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
 
 
 
 const Home = () => {
-  const { isSmallScreen } = useAppContext()
-
+  const { isSmallScreen, account } = useAppContext()
+  console.log(account)
   return (
     <div>
       <Box py={100}>
@@ -22,7 +22,8 @@ const Home = () => {
             Say goodbye to deployment errors and hello to effortless contract deployment. Seamlessly deploy to both mainnet and testnet at the click of a button. Elevate your projects with simplicity and speed.
           </Text>
           <Group align="center" justify="center">
-            <Button radius={'xl'} size="lg" px={'50px'} component={Link} to={'/production-testnet'} rightSection={<IconUpload />}>Deploy</Button>
+            <Button radius={'xl'} size="lg" px={'50px'} component={Link} to={'/deploy'} rightSection={<IconUpload />}>Deploy</Button>
+            <Button radius={'xl'} size="lg" px={'50px'} color="cyan" component={Link} to={'/import'} rightSection={<IconDownload />}>Import</Button>
             <Button radius={'xl'} size="lg" px={'50px'} color="indigo" component={Link} to={'/devnet'} rightSection={<IconCodePlus />}>Devnet</Button>
           </Group>
           <Group justify="center" my="xl">
@@ -49,3 +50,4 @@ const Home = () => {
 }
 
 export default Home
+

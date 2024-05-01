@@ -4,7 +4,7 @@ import { useContractContext } from '../../providers/ContractProvider'
 import { ReactNode, useEffect, useState } from 'react'
 import { useForm } from '@mantine/form'
 import { Alert, Badge, Box, Button, Group, Loader, ScrollArea, Stack, Text, Title, darken, useMantineColorScheme, useMantineTheme } from '@mantine/core'
-import { IconCloudUpload, IconDownload } from '@tabler/icons-react'
+import { IconAlertTriangle, IconChecks, IconCloudUpload } from '@tabler/icons-react'
 import { CallDataItem } from '../deploy'
 import { CairoCustomEnum } from 'starknet'
 import { useAppContext } from '../../providers/AppProvider'
@@ -290,7 +290,7 @@ const FunctionPage = () => {
                             {
                                 callResult !== null ? (
                                     <Box>
-                                        <Alert variant="light" color="green" title="Successful Result" icon={<IconDownload />}>
+                                        <Alert variant="light" color="green" title="Successful Result" icon={<IconChecks />}>
                                             {
                                                 typeof callResult === 'string' ? (
                                                     <Text>
@@ -309,14 +309,16 @@ const FunctionPage = () => {
                                 ) : null
                             }
                             <Box hidden={callError === null}>
-                                <Box p="xs" style={theme => ({
-                                    background: darken(theme.colors.red[6], 0.8),
-                                    borderRadius: theme.radius.md
-                                })}>
-                                    <Text c="white" size='sm' style={{ wordWrap: 'break-word', textWrap: 'wrap' }} w={'100%'}>
-                                        {`${callError}`}
-                                    </Text>
-                                </Box>
+                                <Alert variant="light" color="red" title="Error" icon={<IconAlertTriangle />}>
+                                    <Box p="xs" style={theme => ({
+                                        background: darken(theme.colors.red[6], 0.8),
+                                        borderRadius: theme.radius.md
+                                    })}>
+                                        <Text c="white" size='sm' style={{ wordWrap: 'break-word', textWrap: 'wrap' }} w={'100%'}>
+                                            {`${callError}`}
+                                        </Text>
+                                    </Box>
+                                </Alert>
                             </Box>
                             <Group justify="start">
                                 <Button size="sm" radius={'md'} leftSection={<IconCloudUpload />} type="submit" rightSection={loading ? <Loader color="white" size={'xs'} /> : null}>

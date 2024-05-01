@@ -16,8 +16,18 @@ export const navlinks: ICustomNavLinkProps[] = [
         icon: <IconHomeEco stroke={1.5} />
     },
     {
-        to: '/production-testnet',
-        title: 'Prod & Testnet',
+        to: '/contracts/',
+        title: 'Contracts',
+        icon: <IconHomeEco stroke={1.5} />
+    },
+    {
+        to: '/deploy',
+        title: 'Deploy',
+        icon: <IconHomeEco stroke={1.5} />
+    },
+    {
+        to: '/import',
+        title: 'Import',
         icon: <IconHomeEco stroke={1.5} />
     },
     {

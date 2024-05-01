@@ -31,6 +31,8 @@ import "./styles/main.css"
 
 import '@mantine/core/styles.layer.css';
 import 'mantine-datatable/styles.layer.css';
+import ImportContract from './pages/importContract';
+import Contracts from './pages/contracts';
 
 function App() {
 
@@ -55,7 +57,9 @@ function App() {
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<MainLayout><Home /> </MainLayout>} />
-              <Route path="/production-testnet" element={<MainLayout><Deploy /></MainLayout>} />
+              <Route path="/deploy" element={<MainLayout><Deploy /></MainLayout>} />
+              <Route path="/contracts" element={<MainLayout><Contracts /></MainLayout>} />
+              <Route path="/import" element={<MainLayout><ImportContract /></MainLayout>} />
 
               <Route path="/contracts/interact/:contract_id/" element={<ContractLayout> <Interact /> </ContractLayout>} >
                 <Route path="/contracts/interact/:contract_id/" element={<ContractDashboard />} />

@@ -15,9 +15,6 @@ import { readFileAsString } from "../configs/readAsFileString"
 import { db } from "../db"
 import CustomCopyBtn from "../components/handy_tools/CustomCopyBtn"
 
-// Infura: https://starknet-goerli.infura.io/v3/958e1b411a40480eacb8c0f5d640a8ec
-// Sepolia: https://starknet-sepolia.infura.io/v3/936b5b98923b44289fa0dd1154d85f00
-
 interface ICallDataItem {
     valueType: string
     value: any
@@ -116,7 +113,13 @@ const Deploy = () => {
             contractName: "Contract name",
             casmFile: null,
             sierraFile: null,
-            callData: []
+            callData: [
+                {
+                    key_: 'guardian',
+                    valueType: 'felt',
+                    value: '0x01531EB29Fd2CC73c7ffA434AE48A454Dcd1D7E9bcE6892EC4fAA3D161DcCE75',
+                }
+            ]
         },
         validate: {
             casmFile: val => val === null ? "CASM is required!" : null,
@@ -158,23 +161,46 @@ const Deploy = () => {
         }
         setLoading(true)
         setClassHash(null)
+        // console.log(await account?.getCairoVersion())
+        // console.log(provider)
+        // const v = await account?.getCairoVersion("0x747a93e9662fe3f183183125c85a660b4921d7579c1d2d70512f2198e1a2a60")
+        // console.log("V: ", v)
 
         const sierraAsString = await readFileAsString(form.values.sierraFile as File)
         const casmAsString = await readFileAsString(form.values.casmFile as File)
         const casm = JSON.parse(casmAsString)
-        const classHash = hash.computeContractClassHash(sierraAsString)
+        const classHash = hash.computeSierraContractClassHash(JSON.parse(sierraAsString))
         const compiledClassHash = hash.computeCompiledClassHash(casm)
 
         const payload: DeclareContractPayload = {
-            contract: JSON.parse(sierraAsString),
-            casm,
+            contract: sierraAsString,
             classHash,
+            casm,
             compiledClassHash
         }
 
+        // console.log("Proper initiation")
+
+        // console.log(account)
+        // const signature = await signMessage(account, 'declare', true)
+        // console.log(stark.compressProgram(JSON.parse(sierraAsString)))
+        // console.log(signature)
+        // account?.declareContract({
+        //     senderAddress: address,
+        //     signature: stark.formatSignature(signature),
+        //     contract: JSON.parse(sierraAsString),
+        //     compiledClassHash,
+        // }, {maxFee: '0x0', nonce: '0x0'}).then((res: any) => {
+        //     console.log(res)
+        // }).catch((err: any) => {
+        //     console.log("ERror: ", err)
+        // })
+
         account?.declareIfNot(payload).then((res: any) => {
+            console.log("good declare result: ", res)
             setClassHash(res?.class_hash)
         }).catch((err: any) => {
+            console.log("Error: ", err)
             showNotification({
                 message: `Failed to Declare: ${err}`,
                 color: 'red',
@@ -182,11 +208,13 @@ const Deploy = () => {
             })
             setClassHash(null)
         })
+        console.log("Exiting")
         setLoading(false)
     }
 
 
     async function deployContract() {
+        // console.log(account)
         setLoading(true)
         const call_data: any = {}
         const form_call_data = form.values.callData
@@ -205,20 +233,19 @@ const Deploy = () => {
         }
 
         const sierraAsString = await readFileAsString(form.values.sierraFile as File)
-        const casmAsString = await readFileAsString(form.values.casmFile as File)
-        const casm = JSON.parse(casmAsString)
+        // const casmAsString = await readFileAsString(form.values.casmFile as File)
 
         const contractConstructor = CallData.compile(call_data)
 
-        account.declareAndDeploy({ contract: sierraAsString, casm, constructorCalldata: contractConstructor }).then((res: any) => {
+        account.deploy({ classHash: classHash, constructorCalldata: contractConstructor }).then((res: any) => {
+            // console.log("deployment result: ", res)
             const currentTime = new Date()
-
             db.contracts.add({
                 name: form.values.contractName,
                 tx_info: res,
                 date: `${currentTime.toDateString()} ${currentTime.toLocaleTimeString()}`,
                 chainId: chainId,
-                contract_address: res?.deploy?.address,
+                contract_address: res?.contract_address[0],
                 abi: JSON.parse(sierraAsString)
             }).then((res) => {
                 showNotification({
@@ -226,7 +253,7 @@ const Deploy = () => {
                     color: "green",
                     icon: <IconCheck />
                 })
-                window.location.reload()
+                // window.location.reload()
             }).catch((err: any) => {
                 showNotification({
                     message: `Unable to save the new contract: ${err}`,
@@ -244,7 +271,6 @@ const Deploy = () => {
                 icon: <IconAlertTriangle />,
                 variant: 'light'
             })
-            setClassHash(null)
         }).finally(() => {
             setLoading(false)
             setClassHash(null)
@@ -283,9 +309,8 @@ enum Direction {
         <div>
             <Container size={"md"}>
                 <Stack>
-                    <TextInput label="Connected RPC Endpoint" disabled radius={'md'} value={snap.rpcEndpoint} />
-                    <Deployments />
-                    <Divider />
+                    <TextInput label="Mainnet RPC Endpoint" disabled radius={'md'} value={snap.mainnetRPCEndpoint} />
+                    <TextInput label="Sepolia RPC Endpoint" disabled radius={'md'} value={snap.sepoliaRPCEndpoint} />
                     <Box p="lg" style={theme => ({
                         background: isDarkMode(colorScheme) ? theme.colors.dark[5] : theme.colors.gray[0],
                         borderRadius: theme.radius.lg
@@ -339,7 +364,7 @@ enum Direction {
                                     }
                                     <Grid.Col span={{ md: 12 }}>
                                         <Group justify="center">
-                                            <Button size="sm" radius={'md'} leftSection={<IconCloudUpload />} type="submit" rightSection={loading ? <Loader color="white" size={'xs'} /> : null}>Declare</Button>
+                                            <Button size="sm" radius={'md'} leftSection={<IconCloudUpload />} type="submit" loading={loading}>Declare</Button>
                                             {
                                                 classHash ? (
                                                     <Button size="sm" radius={'md'} leftSection={<IconCloudUpload />} onClick={deployContract} rightSection={loading ? <Loader color="white" size={'xs'} /> : null}>Deploy</Button>
@@ -351,6 +376,8 @@ enum Direction {
                             </form>
                         </Stack>
                     </Box>
+                    <Divider />
+                    <Deployments />
                 </Stack>
             </Container>
         </div>
@@ -358,4 +385,9 @@ enum Direction {
 }
 
 export default Deploy
+
+
+
+
+
 

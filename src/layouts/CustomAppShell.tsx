@@ -50,8 +50,8 @@ const CustomAppShell = (props: ICustomAppShell) => {
                                 ) : null
                             }
                             <Group gap={6}>
-                                <ConnectWalletBtn />
                                 <SwitchNetwork />
+                                <ConnectWalletBtn />
                                 <ColorSchemeToggle />
                                 {
                                     matches ? <SmallScreenMenu /> : null
@@ -61,7 +61,7 @@ const CustomAppShell = (props: ICustomAppShell) => {
                     </Container>
                 </AppShell.Header>
                 <AppShell.Main>
-                    <Container size={'xl'} py={40} style={{paddingBlock: "40px"}}>
+                    <Container size={'xl'} py={40} style={{ paddingBlock: "40px" }}>
                         {children}
                     </Container>
                 </AppShell.Main>

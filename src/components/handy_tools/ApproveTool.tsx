@@ -67,7 +67,7 @@ const ApproveTool = (props: IApproveTool) => {
                 color: "green",
                 icon: <IconInfoCircle stroke={1.5} />
             })
-        }).catch((e: any) => {
+        }).catch(() => {
         }).finally(() => {
             setLoading(false)
         })

@@ -12,7 +12,7 @@ const CustomMantineProvider = (props: ICustomMantineProvider) => {
     return (
         <MantineProvider theme={theme} >
             <ModalsProvider >
-                <Notifications />
+                <Notifications autoClose={10000} />
                 {children}
             </ModalsProvider>
         </MantineProvider>

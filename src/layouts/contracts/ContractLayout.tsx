@@ -12,12 +12,14 @@ import CustomAccordion, { AccordionItem } from '../../components/common/CustomAc
 import AboutContract from '../../components/handy_tools/AboutContract';
 import AppProvider from '../../providers/AppProvider';
 import QuickNotes from '../../components/handy_tools/QuickNotes';
+import ConnectWalletBtn from '../../components/navigation/ConnectWalletBtn';
+import SwitchNetwork from '../../components/navigation/SwitchNetwork';
 
 interface IContractLayout {
     children: React.ReactNode
 }
 
-  
+
 const ContractAppShell = (props: IContractLayout) => {
     const { children } = props
     const [opened, { toggle }] = useDisclosure();
@@ -74,10 +76,14 @@ const ContractAppShell = (props: IContractLayout) => {
             <AppShell.Header>
                 <Group h="100%" px="md" justify='space-between'>
                     <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-                    <Title order={2} fw={500}>{deployment?.name ?? 'contract'}</Title>
-                    <ActionIcon onClick={aside[1].toggle} variant='light' radius='md'>
-                        <IconAdjustmentsHorizontal />
-                    </ActionIcon>
+                    <Title order={2} fw={500}>{`${deployment?.name ?? 'contract'} - ${deployment?.chainId}`}</Title>
+                    <Group h={'100%'}>
+                        <SwitchNetwork />
+                        <ConnectWalletBtn />
+                        <ActionIcon onClick={aside[1].toggle} variant='light' radius='md'>
+                            <IconAdjustmentsHorizontal />
+                        </ActionIcon>
+                    </Group>
                 </Group>
             </AppShell.Header>
             <AppShell.Navbar pt="md" bg={isDarkMode(colorScheme) ? theme.colors.dark[7] : theme.colors.gray[2]} withBorder={false}>
@@ -211,12 +217,12 @@ const ContractAppShell = (props: IContractLayout) => {
 export function ContractLayout(props: IContractLayout) {
     const { children } = props
     return (
-            <AppProvider>
-                <ContractProvider>
-                    <ContractAppShell>
-                        {children}
-                    </ContractAppShell>
-                </ContractProvider>
-            </AppProvider>
+        <AppProvider>
+            <ContractProvider>
+                <ContractAppShell>
+                    {children}
+                </ContractAppShell>
+            </ContractProvider>
+        </AppProvider>
     );
 }

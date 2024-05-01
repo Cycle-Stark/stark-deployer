@@ -39,7 +39,7 @@ interface IContractProvider {
 }
 
 export const ContractContext = createContext(initialData)
-
+ 
 export const useContractContext = () => {
     return useContext(ContractContext)
 }
@@ -58,7 +58,7 @@ const ContractProvider = (props: IAppProvider) => {
     const [opened, { close, open }] = useDisclosure(false);
 
     const _deployment = useLiveQuery(() => db.contracts.get(Number(contract_id ?? '0')));
-
+    // console.log(deployment)
     const form = useForm({
         initialValues: {
             endpoint: ''
@@ -177,3 +177,4 @@ const ContractProvider = (props: IAppProvider) => {
 }
 
 export default ContractProvider
+

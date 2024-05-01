@@ -1,8 +1,9 @@
 import { proxy, subscribe } from 'valtio'
 
 const initialState = {
-    rpcEndpoint: 'null',
-    deployments: []
+    mainnetRPCEndpoint: 'null',
+    sepoliaRPCEndpoint: 'null',
+    activeChainId: 'SN_SEPOLIA'
 }
 
 const appState = proxy(JSON.parse(localStorage.getItem('contract_deployer_state') ?? '{}') || initialState)
