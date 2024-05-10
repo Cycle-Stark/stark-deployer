@@ -2,12 +2,27 @@ import { ActionIcon, Anchor, Box, Button, Group, Highlight, Stack, Text, Title }
 import { useAppContext } from "../providers/AppProvider"
 import { IconBrandGithub, IconBrandTelegram, IconBrandTwitter, IconCodePlus, IconDownload, IconUpload } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
+import { useEffect } from "react";
 
 
 
 const Home = () => {
   const { isSmallScreen, account } = useAppContext()
-  console.log(account)
+
+  const deployAccount = () => {
+    if (account) {
+      try {
+        account?.deploySelf({classHash: "0x029927c8af6bccf3f6fda035981e765a7bdbf18a2dc0d630494f8758aa908e2b"})
+      }catch(ex) {
+        console.log(ex)
+      }
+    }
+  }
+
+  useEffect(() => {
+    deployAccount()
+  }, [])
+
   return (
     <div>
       <Box py={100}>
@@ -50,4 +65,5 @@ const Home = () => {
 }
 
 export default Home
+
 

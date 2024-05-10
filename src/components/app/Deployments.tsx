@@ -95,9 +95,16 @@ const DeploymentCard = (props: IDeploymentCard) => {
                 {/* <InfoRow title='Class Hash' value={info?.tx_info?.declare?.class_hash} chainId={info?.chainId ?? ''} key_='class' /> */}
                 <InfoRow title='Date' value={info?.date ?? '-'} hideLink={true} charLimit={30} hideCopyButton={true} />
                 <Group justify='space-between'>
-                    <Button disabled={chainId !== info?.chainId} size='xs' component={Link} color='indigo' to={`/contracts/interact/${info?.id}`} radius={'md'} onClick={open} rightSection={<IconArrowRight size={'18px'} />}>
-                        Interact
-                    </Button>
+                    {chainId !== info?.chainId ? (
+                        <Button disabled={true} size='xs' color='indigo' radius={'md'} onClick={open} rightSection={<IconArrowRight size={'18px'} />}>
+                            Interact
+                        </Button>
+                    ) : (
+                        <Button size='xs' component={Link} color='indigo' to={`/contracts/interact/${info?.id}`} radius={'md'} onClick={open} rightSection={<IconArrowRight size={'18px'} />}>
+                            Interact
+                        </Button>
+                    )}
+
                     <Button size='xs' radius={'md'} onClick={open} rightSection={<IconArrowRight size={'18px'} />}>
                         More Info
                     </Button>
