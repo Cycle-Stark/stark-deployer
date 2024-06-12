@@ -6,7 +6,6 @@ import { useForm } from '@mantine/form'
 import { Alert, Badge, Box, Button, Group, Loader, ScrollArea, Stack, Text, Title, darken, useMantineColorScheme, useMantineTheme } from '@mantine/core'
 import { IconAlertTriangle, IconChecks, IconCloudUpload } from '@tabler/icons-react'
 import { CallDataItem } from '../deploy'
-import { CairoCustomEnum } from 'starknet'
 import { useAppContext } from '../../providers/AppProvider'
 import { JSONSerializer, bigintToLongStrAddressBasedOnType, extractTypeFromString, getLastItemBasedOnSeparator, isDarkMode } from '../../configs/utils'
 import { CodeHighlight, InlineCodeHighlight } from '@mantine/code-highlight'
@@ -69,7 +68,6 @@ const FunctionPage = () => {
                     valueType: 'felt',
                     value: '',
                 }
-                console.log(_type)
                 if (_type === "u8" || _type === "u32" || _type === "u64" || _type === "u128" || _type === "u256") {
                     entry_obj.valueType = 'number'
                     form.insertListItem('callData', entry_obj)
@@ -94,38 +92,23 @@ const FunctionPage = () => {
         }
     }
 
-    function callFunc() {
+    function callFunc() { 
         setLoading(true)
         setResult(null)
         setError(null)
         if (contract) {
             const func_name: any = function_name
-            const call_data: any = {}
-            const form_call_data = form.values.callData
-            if (form.values.callData.length > 0) {
-                for (let i = 0; i < form_call_data.length; i++) {
-                    const cd = form_call_data[i];
-                    if (cd['valueType'] === 'bool') {
-                        call_data[cd['key_']] = cd['value'] === 'true' ? true : false
-                    } else if (cd['valueType'] === 'enum') {
-                        call_data[cd['key_']] = new CairoCustomEnum({ [cd['value']]: {} })
-                    }
-                    else {
-                        call_data[cd['key_']] = cd['value']
-                    }
-                }
-            }
-
-            // const func_call_data = CallData.compile(call_data)
-            const myCall = contract.populate(func_name, call_data)
-            contract[func_name](myCall.calldata).then((res: any) => {
-                setResult(res)
+            console.log(contract)
+            const myCall = contract.populate(func_name, form.values.callData.map((it: any) => it.value))
+            contract[func_name](myCall.calldata,  { parseResponse: false, parseRequest: true }).then((res: any) => {
+                const val = contract.callData.parse(func_name, res?.result)
+                setResult(val)
                 db.function_calls.add({
-                    function_name: func_name,
+                    function_name: func_name, 
                     contract_address: contract_address,
                     calldata: form.values.callData,
                     status: 'success',
-                    result: res,
+                    result: val,
                 }).then(() => { }).catch(() => { })
 
             }).catch((err: any) => {
@@ -148,7 +131,6 @@ const FunctionPage = () => {
         const func_name: any = function_name
         if (func_name) {
             const func = get_function_info(func_name)
-            console.log(contract)
             setFunctionInfo(func)
         }
     }
@@ -252,10 +234,6 @@ const FunctionPage = () => {
         }
     }, [contract_address])
 
-    useEffect(() => {
-        console.log(contract?.functions)
-    }, [])
-
     return (
         <div>
             <Stack>
@@ -308,7 +286,9 @@ const FunctionPage = () => {
                                                             {`${bigintToLongStrAddressBasedOnType(callResult, functionInfo)}`}
                                                         </Text>
                                                     ) :
-                                                        <RoundedBox><CodeHighlight language='json' code={JSONSerializer(callResult, functionInfo, deployment?.abi)} /></RoundedBox>
+                                                        <RoundedBox>
+                                                            <CodeHighlight language='json' code={JSONSerializer(callResult, functionInfo, deployment?.abi)} />
+                                                        </RoundedBox>
                                             }
                                         </Alert>
                                     </Box>
