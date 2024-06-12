@@ -46,8 +46,9 @@ const DevnetProvider = ({ children }: IDevnetProvider) => {
     const connectAccount = async (index?: number) => {
         if (accounts?.length > 0) {
             const acc = accounts[index ?? 0]
-            const provider = new RpcProvider({ nodeUrl: "http://127.0.0.1:5050/rpc", })
-            const account = new Account(provider, acc?.address, acc?.private_key)
+            // console.log(acc)
+            const provider = new RpcProvider({ nodeUrl: "http://127.0.0.1:5050/rpc" })
+            const account = new Account(provider, acc?.address, acc?.private_key, '1')
 
             setProvider(provider)
             setAccount(account);

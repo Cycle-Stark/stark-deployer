@@ -4,23 +4,13 @@ import { CodeHighlight } from "@mantine/code-highlight"
 
 const instructions = [
     {
-        title: 'Clone the Repo',
-        code: "git clone https://github.com/dalmasonto/devnet-rs-for-stark-deployer",
+        title: 'Cargo Install',
+        code: "cargo install starknet-devnet --version 0.0.7",
         language: "shell"
-    },
-    {
-        title: 'Navigate to the new folder',
-        code: "cd devnet-rs-for-stark-deployer",
-        language: "shell"
-    },
-    {
-        title: 'Export required ENV variables',
-        code: `export RPC_SPEC_VERSION="0.5.1"\nexport STARKNET_VERSION="0.13.0"`,
-        language: "ts"
     },
     {
         title: 'Run Devnet',
-        code: `cargo run`,
+        code: `starknet-devnet`,
         language: "ts"
     }
 ]
@@ -43,8 +33,8 @@ const DevnetInstructions = () => {
                 <Stack>
                     <Title order={2}>How to Get Started</Title>
                     <Title order={3}>Requirements</Title>
-                    <CodeHighlight code="Starknet Devnet RS - [rpc-0.5.0] branch" language="js" style={{ borderRadius: '10px' }} />
-                    <Title order={3}>How to install & run the required devnet branch </Title>
+                    <CodeHighlight code="Starknet Devnet RS - v0.0,0.7" language="js" style={{ borderRadius: '10px' }} />
+                    <Title order={3}>How to install & run the required Devnet </Title>
                     {
                         instructions?.map((item: any, i: number) => (
                             <Instruction key={`instruction_${i}`} index={i + 1} {...item} />

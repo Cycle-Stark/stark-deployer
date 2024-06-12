@@ -86,12 +86,11 @@ export const getInterfaceName = (full_intf: string) => {
 }
 
 
-export const getLastItemBasedOnSeparator = (str: string, separator: string) => {
-    if (!str) return ""
-    const pieces = str.split(separator)
-    const last = pieces[pieces.length - 1]
-    return last
-}
+export const getLastItemBasedOnSeparator = (str: string, separator: string): string => {
+    if (!str) return "";
+    const lastIndex = str.lastIndexOf(separator);
+    return lastIndex !== -1 ? str.substring(lastIndex + separator.length) : str;
+};
 
 
 export function extractTypeFromString(inputString: string) {

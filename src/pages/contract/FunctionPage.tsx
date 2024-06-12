@@ -25,7 +25,7 @@ const FunctionPage = () => {
     const { function_name } = useParams()
     const { contract, get_function_info, connectContract, deployment, contract_address } = useContractContext()
     const [_contract_address, setContractAddress] = useState('')
-    const { account, handleConnetWalletBtnClick } = useAppContext()
+    const { account, handleConnectWalletBtnClick } = useAppContext()
     const [loading, setLoading] = useState(false)
     const [callResult, setResult] = useState<any | null>(null)
     const [callError, setError] = useState<any | null>(null)
@@ -69,6 +69,7 @@ const FunctionPage = () => {
                     valueType: 'felt',
                     value: '',
                 }
+                console.log(_type)
                 if (_type === "u8" || _type === "u32" || _type === "u64" || _type === "u128" || _type === "u256") {
                     entry_obj.valueType = 'number'
                     form.insertListItem('callData', entry_obj)
@@ -147,6 +148,7 @@ const FunctionPage = () => {
         const func_name: any = function_name
         if (func_name) {
             const func = get_function_info(func_name)
+            console.log(contract)
             setFunctionInfo(func)
         }
     }
@@ -250,6 +252,10 @@ const FunctionPage = () => {
         }
     }, [contract_address])
 
+    useEffect(() => {
+        console.log(contract?.functions)
+    }, [])
+
     return (
         <div>
             <Stack>
@@ -265,7 +271,7 @@ const FunctionPage = () => {
                 })}>
                     <form onSubmit={form.onSubmit(_values => {
                         if (!account) {
-                            handleConnetWalletBtnClick()
+                            handleConnectWalletBtnClick()
                         } else if (!contract) {
                             connectContract()
                         }

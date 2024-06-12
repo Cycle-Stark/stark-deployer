@@ -1,6 +1,6 @@
-import { ActionIcon, Anchor, Box, Button, Group, Highlight, Stack, Text, Title } from "@mantine/core";
+import { ActionIcon, Alert, Anchor, Box, Button, Group, Highlight, Stack, Text, Title } from "@mantine/core";
 import { useAppContext } from "../providers/AppProvider"
-import { IconBrandGithub, IconBrandTelegram, IconBrandTwitter, IconCodePlus, IconDownload, IconUpload } from "@tabler/icons-react";
+import { IconBrandGithub, IconBrandTelegram, IconBrandTwitter, IconCodePlus, IconDownload, IconInfoCircle, IconUpload } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
 import { useEffect } from "react";
 
@@ -12,8 +12,8 @@ const Home = () => {
   const deployAccount = () => {
     if (account) {
       try {
-        account?.deploySelf({classHash: "0x029927c8af6bccf3f6fda035981e765a7bdbf18a2dc0d630494f8758aa908e2b"})
-      }catch(ex) {
+        account?.deploySelf({ classHash: "0x029927c8af6bccf3f6fda035981e765a7bdbf18a2dc0d630494f8758aa908e2b" })
+      } catch (ex) {
         console.log(ex)
       }
     }
@@ -36,6 +36,9 @@ const Home = () => {
           <Text c={'dimmed'} ta={'center'} maw={isSmallScreen ? '100%' : '70%'} mx={'auto'}>
             Say goodbye to deployment errors and hello to effortless contract deployment. Seamlessly deploy to both mainnet and testnet at the click of a button. Elevate your projects with simplicity and speed.
           </Text>
+          <Alert title="Take Note" icon={<IconInfoCircle />} color="yellow" radius={'md'}>
+            <Text>Use APIs from <Anchor href="https://blastapi.io/public-api/starknet" target="_blank">Blast API</Anchor> and Braavos wallet to declare and deploy your contracts.</Text>
+          </Alert>
           <Group align="center" justify="center">
             <Button radius={'xl'} size="lg" px={'50px'} component={Link} to={'/deploy'} rightSection={<IconUpload />}>Deploy</Button>
             <Button radius={'xl'} size="lg" px={'50px'} color="cyan" component={Link} to={'/import'} rightSection={<IconDownload />}>Import</Button>
@@ -47,7 +50,7 @@ const Home = () => {
                 <IconBrandTwitter size={'42px'} stroke={1.5} />
               </ActionIcon>
             </Anchor>
-            <Anchor href="https://github.com/dalmasonto" target="_blank">
+            <Anchor href="https://github.com/Cycle-Stark/stark-deployer" target="_blank">
               <ActionIcon variant="transparent" size={'42px'} color="green">
                 <IconBrandGithub size={'42px'} stroke={1.5} />
               </ActionIcon>

@@ -8,7 +8,7 @@ import { ICustomNavLinkProps, navlinks } from './CustomNavLink';
 import { useAppContext } from '../../providers/AppProvider';
 
 export default function SmallScreenMenu() {
-    const { handleConnetWalletBtnClick, address } = useAppContext()
+    const { handleConnectWalletBtnClick, address } = useAppContext()
 
     return (
         <Menu shadow="md" width={200} position='bottom-end' radius={'lg'}>
@@ -31,7 +31,7 @@ export default function SmallScreenMenu() {
                 <Menu.Divider />
 
                 <Menu.Label>Wallet</Menu.Label>
-                <Menu.Item color={address ? 'red': 'green'} leftSection={<IconWalletOff style={{ width: rem(14), height: rem(14) }} />} onClick={handleConnetWalletBtnClick}>
+                <Menu.Item color={address ? 'red': 'green'} leftSection={<IconWalletOff style={{ width: rem(14), height: rem(14) }} />} onClick={handleConnectWalletBtnClick}>
                     {address ? "Disconnect" : "Connect"}
                 </Menu.Item>
             </Menu.Dropdown>

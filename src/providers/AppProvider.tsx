@@ -1,255 +1,258 @@
-import { ReactNode, createContext, useContext, useEffect, useMemo, useState } from 'react'
-import { connect, disconnect } from 'starknetkit'
-import { modals } from '@mantine/modals'
-import { Box, Button, Modal, Stack, Text, TextInput } from '@mantine/core'
-import { useDisclosure, useMediaQuery } from '@mantine/hooks'
-import { useForm } from '@mantine/form'
-import { useSnapshot } from 'valtio'
-import appState from '../configs/storage'
-import { bigintToShortStr } from '../configs/utils'
-import { RpcProvider } from 'starknet'
-import { showNotification } from '@mantine/notifications'
+import { ReactNode, createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { connect, disconnect } from 'starknetkit';
+import { modals } from '@mantine/modals';
+import { Box, Button, Modal, Stack, Text, TextInput } from '@mantine/core';
+import { useDisclosure, useMediaQuery } from '@mantine/hooks';
+import { useForm } from '@mantine/form';
+import { useSnapshot } from 'valtio';
+import appState from '../configs/storage';
+import { RpcProvider, shortString } from 'starknet';
+import { showNotification } from '@mantine/notifications';
 
-const initialData = {
-    provider: null as any,
-    switchNetwork: null as any,
-    account: null as any,
-    address: null as any,
-    chainId: null as any,
-    connectedWallet: null as any,
-    connection: null as any,
-    handleConnetWalletBtnClick: null as any,
+interface IAppContext {
+    provider: any;
+    switchNetwork: (connection: any, chainId: 'SN_MAIN' | 'SN_SEPOLIA') => void;
+    account: any;
+    address: string;
+    chainId: string;
+    connectedWallet: string;
+    connection: any;
+    handleConnectWalletBtnClick: () => void;
+    isSmallScreen: boolean;
+}
+
+const initialData: IAppContext = {
+    provider: null,
+    switchNetwork: () => { },
+    account: null,
+    address: '',
+    chainId: 'SN_SEPOLIA',
+    connectedWallet: '',
+    connection: null,
+    handleConnectWalletBtnClick: () => { },
     isSmallScreen: false,
-}
+};
 
-export const AppContext = createContext(initialData)
+export const AppContext = createContext<IAppContext>(initialData);
 
-export const useAppContext = () => {
-    return useContext(AppContext)
-}
+export const useAppContext = () => useContext(AppContext);
 
 interface IAppProvider {
-    children: ReactNode
+    children: ReactNode;
 }
 
 const AppProvider = ({ children }: IAppProvider) => {
-    // Account
-
-    const [provider, setProvider] = useState<null | any>()
-    const [chainId, setChainId] = useState<null | string>('SN_SEPOLIA')
-    const [connectedWallet, setConnectedWallet] = useState<any>(null)
-    const [connection, setConnection] = useState<null | any>();
-    const [account, setAccount] = useState<null | any>();
-    const [address, setAddress] = useState<null | any>("");
-    const [isSmallScreen, setIsSmallScreen] = useState<boolean | any>(false)
+    const [provider, setProvider] = useState<any>(null);
+    const [chainId, setChainId] = useState<string>('SN_SEPOLIA');
+    const [connectedWallet, setConnectedWallet] = useState<string>('');
+    const [connection, setConnection] = useState<any>(null);
+    const [account, setAccount] = useState<any>(null);
+    const [address, setAddress] = useState<string>('');
+    const [isSmallScreen, setIsSmallScreen] = useState<any>(false);
 
     const [opened, { open, close }] = useDisclosure(false);
+    const matches = useMediaQuery('(max-width: 768px)');
+
+    const snap = useSnapshot(appState, { sync: true });
 
     const urlRegex = /^(https?:\/\/)?([a-zA-Z0-9-]+\.){1,}[a-zA-Z]{2,}(\/[a-zA-Z0-9-_.~!*'();:@&=+$,%#]+)*\/?$/;
-
-    const matches = useMediaQuery('(max-width: 768px)');
-    const snap = useSnapshot(appState, { sync: true })
 
     const form = useForm({
         initialValues: {
             rpc_mainnet: snap.mainnetRPCEndpoint,
-            rpc_sepolia: snap.sepoliaRPCEndpoint
+            rpc_sepolia: snap.sepoliaRPCEndpoint,
         },
         validate: {
-            rpc_mainnet: value => {
-                if (value === '' || value === null) {
-                    return "Mainnet RPC endpoint is required!"
-                }
-                else if (!urlRegex.test(value)) {
-                    return "Enter valid URL!"
-                }
-                return null
-            },
-            rpc_sepolia: value => {
-                if (value === '' || value === null) {
-                    return "Sepolia RPC endpoint is required!"
-                }
-                else if (!urlRegex.test(value)) {
-                    return "Enter valid URL!"
-                }
-                return null
-            }
-        }
-    })
+            rpc_mainnet: (value) =>
+                value === '' || value === null
+                    ? 'Mainnet RPC endpoint is required!'
+                    : !urlRegex.test(value)
+                        ? 'Enter valid URL!'
+                        : null,
+            rpc_sepolia: (value) =>
+                value === '' || value === null
+                    ? 'Sepolia RPC endpoint is required!'
+                    : !urlRegex.test(value)
+                        ? 'Enter valid URL!'
+                        : null,
+        },
+    });
 
-
-    const connectWallet = async () => {
+    const connectWallet = async (modalMode: "canAsk" | "alwaysAsk" | "neverAsk" | undefined = "canAsk") => {
         if (!form.values.rpc_mainnet || !form.values.rpc_sepolia) {
-            showNotification({
-                message: "RPC endpoints required for connection."
-            })
-            return
+            showNotification({ message: 'RPC endpoints required for connection.' });
+            return;
         }
 
+        const RPC_ENDPOINT = chainId === 'SN_SEPOLIA' ? form.values.rpc_sepolia : form.values.rpc_mainnet;
+        const provider = new RpcProvider({ nodeUrl: RPC_ENDPOINT });
 
-        let RPC_ENDPOINT = form.values.rpc_mainnet
-        if (chainId === 'SN_SEPOLIA') {
-            RPC_ENDPOINT = form.values.rpc_sepolia
-        }
-
-        const provider = new RpcProvider({ nodeUrl: RPC_ENDPOINT })
-
-        const connection: any = await connect({
-            webWalletUrl: "https://web.argent.xyz",
-            dappName: "Stark Deployer",
-            modalMode: 'canAsk',
-            provider: provider
+        const connection = await connect({
+            webWalletUrl: 'https://web.argent.xyz',
+            dappName: 'Stark Deployer',
+            modalMode: modalMode,
+            resultType: 'wallet',
         });
 
-        if (connection && connection?.wallet?.isConnected) {
-            setConnectedWallet(connection?.wallet?.id)
+        if (connection?.wallet?.isConnected) {
+            setConnectedWallet(connection.wallet.id);
             setConnection(connection);
-            setAccount(connection?.wallet?.account);
-            setAddress(connection?.wallet?.selectedAddress);
-            setProvider(provider)
+            setAccount(connection.wallet.account);
+            setAddress(connection.wallet.selectedAddress);
+            setProvider(provider);
 
-            appState.mainnetRPCEndpoint = form.values.rpc_mainnet
-            appState.sepoliaRPCEndpoint = form.values.rpc_sepolia
+            appState.mainnetRPCEndpoint = form.values.rpc_mainnet;
+            appState.sepoliaRPCEndpoint = form.values.rpc_sepolia;
 
-            const chainID_FROM_PROVIDER = bigintToShortStr(connection?.wallet?.provider?.chainId)
-
-            if (connection?.wallet?.id === 'argentX') {
-                const chainID_FROM_WALLET_CONNECTION = connection?.wallet?.chainId
-
-                if (chainID_FROM_PROVIDER !== chainID_FROM_WALLET_CONNECTION) {
-                    showNotification({
-                        message: `Network mismatch. You have selected ${chainId} but your wallet is at ${chainID_FROM_WALLET_CONNECTION}. Change wallet network and reconnect please.`,
-
-                    })
-                    disconnectWallet()
-                }
-            } else {
-                const readChainIdHexForBraavos = bigintToShortStr(connection?.wallet?.chainId)
-                const chainID_FROM_WALLET_CONNECTION = readChainIdHexForBraavos === "SN_MAIN" ? "SN_MAIN" : "SN_SEPOLIA"
-
-                if (chainID_FROM_PROVIDER !== chainID_FROM_WALLET_CONNECTION) {
-                    showNotification({
-                        message: `Network mismatch. You have selected ${chainId} but your wallet is at ${chainID_FROM_WALLET_CONNECTION}. Change wallet network and reconnect please.`
-                    })
-                    disconnectWallet()
-                }
-            }
+            handleChainIdMismatch(connection);
         }
-        close()
+        close();
     };
 
-    async function switchNetwork(connection: any, chainId: "SN_MAIN" | "SN_SEPOLIA" = "SN_SEPOLIA") {
-        if (connectedWallet && connectedWallet === "braavos") {
-            alert(`You have connected braavos. Please manually switch your wallet to ${chainId === 'SN_SEPOLIA' ? 'Mainnet' : 'Sepolia'} and reconnect your wallet`);
-            disconnectWallet()
-            return
+    const handleChainIdMismatch = (connection: any) => {
+
+        let chainID_FROM_PROVIDER = ""
+        let chainID_FROM_WALLET_CONNECTION = ""
+
+        if (connection?.wallet?.id === 'argentX') {
+            chainID_FROM_WALLET_CONNECTION = connection?.wallet?.chainId
+            chainID_FROM_PROVIDER = shortString.decodeShortString(connection?.wallet?.provider?.provider?.chainId);
+        } else {
+            chainID_FROM_PROVIDER = shortString.decodeShortString(connection?.wallet?.provider?.chainId);
+            chainID_FROM_WALLET_CONNECTION = chainId === "SN_MAIN" ? shortString.decodeShortString(connection?.wallet?.chainId) : "SN_SEPOLIA"
         }
-        setChainId(chainId)
-        appState.activeChainId = chainId
+
+        if (chainID_FROM_PROVIDER !== chainID_FROM_WALLET_CONNECTION) {
+            showNotification({
+                message: `Network mismatch. You have selected ${chainId} but your wallet is at ${chainID_FROM_WALLET_CONNECTION}. Change wallet network and reconnect please.`,
+            });
+            disconnectWallet();
+        }
+    };
+
+    const switchNetwork = async (connection: any, newChainId: 'SN_MAIN' | 'SN_SEPOLIA' = 'SN_SEPOLIA') => {
+        if (connectedWallet === 'braavos') {
+            alert(`Please manually switch your wallet to ${newChainId === 'SN_SEPOLIA' ? 'Mainnet' : 'Sepolia'} and reconnect.`);
+            disconnectWallet();
+            return;
+        }
+
+        setChainId(newChainId);
+        appState.activeChainId = newChainId;
+
         if (connection) {
             try {
-                if (window.starknet) {
-                    window.starknet?.request({
-                        type: "wallet_switchStarknetChain",
-                        params: {
-                            chainId: chainId
-                        }
-                    }).then(() => {
-                        // setChainId(chainId)
-                        disconnectWallet()
-                        // connectWallet()
-                    })
-                }
-
+                await connection.wallet.request({
+                    type: 'wallet_switchStarknetChain',
+                    params: { chainId: newChainId },
+                });
+                disconnectWallet();
+                connectWallet('canAsk');
             } catch (error) {
-                if (connectedWallet === "braavos") {
-                    alert(`You have connected braavos. Please manually switch your wallet to ${chainId === 'SN_SEPOLIA' ? 'Mainnet' : 'Sepolia'} and reconnect your wallet`);
-                    disconnectWallet()
+                console.error('Error switching network:', error);
+                if (connectedWallet === 'braavos') {
+                    alert(`Please manually switch your wallet to ${newChainId === 'SN_SEPOLIA' ? 'Mainnet' : 'Sepolia'} and reconnect.`);
+                    disconnectWallet();
                 }
             }
         }
-    }
+    };
 
     const disconnectWallet = async () => {
         await disconnect({ clearLastWallet: false });
         setConnection(null);
         setAccount(null);
-        setAddress("");
-        setProvider(null)
-        // setChainId("")
-        setConnectedWallet("")
+        setAddress('');
+        setProvider(null);
+        setConnectedWallet('');
     };
 
+    const openConfirmDisconnectModal = () =>
+        modals.openConfirmModal({
+            title: 'You are about to disconnect your wallet!',
+            centered: true,
+            radius: 'md',
+            children: <Text size="sm">Are you sure you want to disconnect your account?</Text>,
+            labels: { confirm: 'Disconnect', cancel: 'Cancel' },
+            confirmProps: { radius: 'md', variant: 'light' },
+            cancelProps: { radius: 'md', variant: 'light' },
+            onCancel: () => { },
+            onConfirm: () => disconnectWallet(),
+        });
 
-    const openConfirmDisconnectModal = () => modals.openConfirmModal({
-        title: 'You are about to disconnet your wallet!',
-        centered: true,
-        radius: "md",
-        children: (
-            <Text size="sm">
-                Are you sure you want to disconnect your account?
-            </Text>
-        ),
-        labels: { confirm: 'Disconnect', cancel: 'Cancel' },
-        confirmProps: { radius: "md", variant: "light" },
-        cancelProps: { radius: "md", variant: "light" },
-        onCancel: () => { },
-        onConfirm: () => disconnectWallet(),
-    });
-
-    const handleConnetWalletBtnClick = () => {
+    const handleConnectWalletBtnClick = () => {
         if (!account) {
-            open()
-            // connectWallet()
+            open();
+        } else {
+            openConfirmDisconnectModal();
         }
-        else {
-            openConfirmDisconnectModal()
+    };
+
+    const contextValue = useMemo(
+        () => ({
+            switchNetwork,
+            chainId,
+            connectedWallet,
+            provider,
+            account,
+            address,
+            connection,
+            handleConnectWalletBtnClick,
+            isSmallScreen,
+        }),
+        [account, address, connection, chainId, matches]
+    );
+
+    useEffect(() => {
+        setIsSmallScreen(matches);
+    }, [matches]);
+
+    useEffect(() => {
+        setChainId(snap.activeChainId ?? 'SN_SEPOLIA');
+    }, []);
+
+    useEffect(() => {
+        if (connection) {
+            console.log("change")
+            connection?.wallet?.on({
+                type: 'accountsChanged',
+            }).then((res: any) => {
+                console.log(res)
+            }).catch((error: any) => {
+                console.error(error)
+            })
         }
-    }
-
-    const contextValue = useMemo(() => ({
-        switchNetwork,
-        chainId,
-        connectedWallet,
-        provider,
-        account,
-        address,
-        connection,
-        handleConnetWalletBtnClick,
-        isSmallScreen,
-    }), [account, address, connection, chainId, matches]);
-
-    useEffect(() => {
-        connectWallet();
-    }, [chainId]);
-
-    useEffect(() => {
-        setIsSmallScreen(matches)
-    }, [matches])
-
-    useEffect(() => {
-        setChainId(snap.activeChainId ?? 'SN_SEPOLIA')
     }, [])
 
     return (
         <AppContext.Provider value={contextValue}>
             {children}
-            <Modal radius={'md'} opened={opened} onClose={close} size="lg" title="Connect with RPC">
-                {/* <Text></Text> */}
-                <form onSubmit={form.onSubmit(_values => connectWallet())} action='/some other page'>
+            <Modal radius="md" opened={opened} onClose={close} size="lg" title="Connect with RPC">
+                <form onSubmit={form.onSubmit(() => connectWallet())}>
                     <Stack>
-                        <TextInput radius={'md'} label="Mainnet RPC Endpoint" placeholder='Enter Infura or Alchemy RPC Endpoint ie https://...' {...form.getInputProps('rpc_mainnet')} />
-                        <TextInput radius={'md'} label="Sepolia RPC Endpoint" placeholder='Enter Infura or Alchemy RPC Endpoint ie https://...' {...form.getInputProps('rpc_sepolia')} />
+                        <TextInput
+                            radius="md"
+                            label="Mainnet RPC Endpoint"
+                            placeholder="Enter Infura or Alchemy RPC Endpoint i.e., https://..."
+                            {...form.getInputProps('rpc_mainnet')}
+                        />
+                        <TextInput
+                            radius="md"
+                            label="Sepolia RPC Endpoint"
+                            placeholder="Enter Infura or Alchemy RPC Endpoint i.e., https://..."
+                            {...form.getInputProps('rpc_sepolia')}
+                        />
                         <Box>
-                            <Button radius={'md'} type='submit'>Connect</Button>
+                            <Button radius="md" type="submit">
+                                Connect
+                            </Button>
                         </Box>
                     </Stack>
                 </form>
             </Modal>
         </AppContext.Provider>
-    )
-}
+    );
+};
 
-export default AppProvider
-
+export default AppProvider;
 

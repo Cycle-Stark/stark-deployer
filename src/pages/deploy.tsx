@@ -1,11 +1,11 @@
 import { useSnapshot } from "valtio"
 import appState from "../configs/storage"
-import { ActionIcon, Box, Button, Code, Container, Divider, FileInput, Grid, Group, Loader, NumberInput, Select, Stack, Text, TextInput, Title, useMantineColorScheme } from "@mantine/core"
+import { ActionIcon, Alert, Anchor, Box, Button, Code, Container, Divider, FileInput, Grid, Group, Loader, NumberInput, Select, Stack, Text, TextInput, Title, useMantineColorScheme } from "@mantine/core"
 import { useForm } from "@mantine/form"
 import { IconAlertTriangle, IconCheck, IconCloudUpload, IconInfoCircle, IconPlus, IconTrash, IconX } from "@tabler/icons-react"
 import { useAppContext } from "../providers/AppProvider"
 import { useState } from "react"
-import { CairoCustomEnum, CallData, DeclareContractPayload, hash } from "starknet"
+import { CairoCustomEnum, CallData, ContractFactory, DeclareContractPayload, hash } from "starknet"
 import { showNotification } from "@mantine/notifications"
 import { isDarkMode } from "../configs/utils"
 import Deployments from "../components/app/Deployments"
@@ -101,7 +101,7 @@ interface FormValues {
 }
 
 const Deploy = () => {
-    const { account, chainId } = useAppContext()
+    const { account, chainId, provider } = useAppContext()
     const [loading, setLoading] = useState(false)
     const { colorScheme } = useMantineColorScheme()
     const [classHash, setClassHash] = useState<string | null>(null)
@@ -161,11 +161,6 @@ const Deploy = () => {
         }
         setLoading(true)
         setClassHash(null)
-        // console.log(await account?.getCairoVersion())
-        // console.log(provider)
-        // const v = await account?.getCairoVersion("0x747a93e9662fe3f183183125c85a660b4921d7579c1d2d70512f2198e1a2a60")
-        // console.log("V: ", v)
-
         const sierraAsString = await readFileAsString(form.values.sierraFile as File)
         const casmAsString = await readFileAsString(form.values.casmFile as File)
         const casm = JSON.parse(casmAsString)
@@ -178,43 +173,29 @@ const Deploy = () => {
             casm,
             compiledClassHash
         }
-
-        // console.log("Proper initiation")
-
-        // console.log(account)
-        // const signature = await signMessage(account, 'declare', true)
-        // console.log(stark.compressProgram(JSON.parse(sierraAsString)))
-        // console.log(signature)
-        // account?.declareContract({
-        //     senderAddress: address,
-        //     signature: stark.formatSignature(signature),
-        //     contract: JSON.parse(sierraAsString),
-        //     compiledClassHash,
-        // }, {maxFee: '0x0', nonce: '0x0'}).then((res: any) => {
-        //     console.log(res)
-        // }).catch((err: any) => {
-        //     console.log("ERror: ", err)
-        // })
-
-        account?.declareIfNot(payload).then((res: any) => {
-            console.log("good declare result: ", res)
-            setClassHash(res?.class_hash)
-        }).catch((err: any) => {
-            console.log("Error: ", err)
-            showNotification({
-                message: `Failed to Declare: ${err}`,
-                color: 'red',
-                icon: <IconAlertTriangle />
+        try {
+            account?.declareIfNot(payload).then((res: any) => {
+                console.log("good declare result: ", res)
+                setClassHash(res?.class_hash)
+            }).catch((err: any) => {
+                console.log("INTERNAL DECLARATION Error: ", err)
+                showNotification({
+                    message: `Failed to Declare: ${err}`,
+                    color: 'red',
+                    icon: <IconAlertTriangle />
+                })
+                setClassHash(null)
             })
-            setClassHash(null)
-        })
-        console.log("Exiting")
-        setLoading(false)
+            console.log("Exiting")
+            setLoading(false)
+        } catch (error) {
+            console.log("Global declaration error", error)
+        }
     }
 
 
     async function deployContract() {
-        // console.log(account)
+        console.log(account, provider)
         setLoading(true)
         const call_data: any = {}
         const form_call_data = form.values.callData
@@ -237,15 +218,31 @@ const Deploy = () => {
 
         const contractConstructor = CallData.compile(call_data)
 
-        account.deploy({ classHash: classHash, constructorCalldata: contractConstructor }).then((res: any) => {
-            // console.log("deployment result: ", res)
+        const sierraAsJson = JSON.parse(sierraAsString)
+        const casmAsString = await readFileAsString(form.values.casmFile as File)
+        const casm = JSON.parse(casmAsString)
+        const classHash = hash.computeSierraContractClassHash(JSON.parse(sierraAsString))
+        const compiledClassHash = hash.computeCompiledClassHash(casm)
+
+        const contract_ = new ContractFactory(
+            {
+                account,
+                abi: sierraAsJson?.abi,
+                casm,
+                compiledContract: sierraAsJson,
+                classHash,
+                compiledClassHash,
+            }
+        )
+
+        contract_.deploy(contractConstructor).then((res: any) => {
             const currentTime = new Date()
             db.contracts.add({
                 name: form.values.contractName,
                 tx_info: res,
                 date: `${currentTime.toDateString()} ${currentTime.toLocaleTimeString()}`,
                 chainId: chainId,
-                contract_address: res?.contract_address[0],
+                contract_address: res?.address,
                 abi: JSON.parse(sierraAsString)
             }).then((res) => {
                 showNotification({
@@ -265,6 +262,7 @@ const Deploy = () => {
             form.reset()
             setClassHash(null)
         }).catch((err: any) => {
+            console.log("Deployment error: ", err)
             showNotification({
                 message: `Failed to Deploy: ${err}`,
                 color: 'red',
@@ -275,6 +273,47 @@ const Deploy = () => {
             setLoading(false)
             setClassHash(null)
         })
+
+        // account.declareAndDeploy(payload).then((res: any) => {
+        //     // account.deploy({ classHash: classHash, constructorCalldata: contractConstructor }).then((res: any) => {
+        //     console.log("deployment result: ", res)
+        //     const currentTime = new Date()
+        //     db.contracts.add({
+        //         name: form.values.contractName,
+        //         tx_info: res,
+        //         date: `${currentTime.toDateString()} ${currentTime.toLocaleTimeString()}`,
+        //         chainId: chainId,
+        //         contract_address: res?.deploy?.contract_address,
+        //         abi: JSON.parse(sierraAsString)
+        //     }).then((res) => {
+        //         showNotification({
+        //             message: `New Contract saved with ID: ${res}`,
+        //             color: "green",
+        //             icon: <IconCheck />
+        //         })
+        //         // window.location.reload()
+        //     }).catch((err: any) => {
+        //         showNotification({
+        //             message: `Unable to save the new contract: ${err}`,
+        //             color: "red",
+        //             icon: <IconX />
+        //         })
+        //     })
+
+        //     form.reset()
+        //     setClassHash(null)
+        // }).catch((err: any) => {
+        //     console.log("Deployment error: ", err)
+        //     showNotification({
+        //         message: `Failed to Deploy: ${err}`,
+        //         color: 'red',
+        //         icon: <IconAlertTriangle />,
+        //         variant: 'light'
+        //     })
+        // }).finally(() => {
+        //     setLoading(false)
+        //     setClassHash(null)
+        // })
 
     }
 
@@ -309,6 +348,9 @@ enum Direction {
         <div>
             <Container size={"md"}>
                 <Stack>
+                    <Alert title="Take Note" icon={<IconInfoCircle />} color="yellow" radius={'md'}>
+                        <Text>Use APIs from <Anchor href="https://blastapi.io/public-api/starknet" target="_blank">Blast API</Anchor> and Braavos wallet to declare and deploy your contracts.</Text>
+                    </Alert>
                     <TextInput label="Mainnet RPC Endpoint" disabled radius={'md'} value={snap.mainnetRPCEndpoint} />
                     <TextInput label="Sepolia RPC Endpoint" disabled radius={'md'} value={snap.sepoliaRPCEndpoint} />
                     <Box p="lg" style={theme => ({
@@ -385,6 +427,8 @@ enum Direction {
 }
 
 export default Deploy
+
+
 
 
 

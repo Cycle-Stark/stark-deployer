@@ -5,8 +5,9 @@ import { useAppContext } from "../../providers/AppProvider"
 import { useEffect, useState } from "react"
 
 const ConnectWalletBtn = () => {
-    const [connectedAddress, setConnectedAddress] = useState(null)
-    const { handleConnetWalletBtnClick, address } = useAppContext()
+    const [connectedAddress, setConnectedAddress] = useState<string | null>(null)
+    
+    const { handleConnectWalletBtnClick, address } = useAppContext()
     const { isSmallScreen } = useAppContext()
 
     useEffect(() => {
@@ -17,11 +18,11 @@ const ConnectWalletBtn = () => {
         <>
             {
                 isSmallScreen ? (
-                    <ActionIcon variant="light" onClick={handleConnetWalletBtnClick}>
+                    <ActionIcon variant="light" onClick={handleConnectWalletBtnClick}>
                         <IconWallet stroke={1.5} />
                     </ActionIcon>
                 ) : (
-                    <Button variant='outline' radius={'xl'} size="sm" leftSection={<IconWallet stroke={1.5} />} onClick={handleConnetWalletBtnClick}>
+                    <Button variant='outline' radius={'xl'} size="sm" leftSection={<IconWallet stroke={1.5} />} onClick={handleConnectWalletBtnClick}>
                         {
                             connectedAddress ? limitChars(connectedAddress, 10, true) : 'Connect'
                         }

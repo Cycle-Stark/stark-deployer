@@ -1,19 +1,19 @@
 import { CodeHighlight, InlineCodeHighlight } from '@mantine/code-highlight'
-import { useMantineColorScheme, useMantineTheme, Box, Stack, Title, Group, Alert, darken, Button, Loader, Badge, Text } from '@mantine/core'
+import { useMantineColorScheme, Box, Stack, Title, Group, Alert, darken, Button, Loader, Text } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { IconDownload, IconCloudUpload } from '@tabler/icons-react'
-import { DataTable } from 'mantine-datatable'
-import { useState, ReactNode, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import serialize from 'serialize-javascript'
-import { CairoCustomEnum } from 'starknet'
+
 import RoundedBox from '../../../components/common/RoundedBox'
 import { getLastItemBasedOnSeparator, extractTypeFromString, isDarkMode, bigintToLongStrAddressBasedOnType, JSONSerializer } from '../../../configs/utils'
 import { db } from '../../../db'
 import { CallDataItem } from '../../deploy'
 import { useDevnetContractContext } from '../../../providers/DevnetContractProvider'
 import { useDevnetContext } from '../../../providers/DevnetProvider'
-import { modals } from '@mantine/modals'
+import FuncCallsTable from './FuncCallsTable'
+
+// import { json } from 'starknet'
 
 interface FormValues {
     callData: any[]
@@ -29,8 +29,9 @@ const DevnetFunctionPage = () => {
     const [callResult, setResult] = useState<any | null>(null)
     const [callError, setError] = useState<any | null>(null)
     const [functionInfo, setFunctionInfo] = useState<any | null>(null)
+    const [sourceCode, setSourceCode] = useState<any>(null)
+
     const { colorScheme } = useMantineColorScheme()
-    const theme = useMantineTheme()
 
     const [funcCalls, setFuncCalls] = useState<any>([])
 
@@ -92,32 +93,17 @@ const DevnetFunctionPage = () => {
             })
         }
     }
- 
+
     function callFunc() {
         setLoading(true)
         setResult(null)
         setError(null)
         if (contract) {
             const func_name: any = function_name
-            const call_data: any = {}
-            const form_call_data = form.values.callData
-            if (form.values.callData.length > 0) {
-                for (let i = 0; i < form_call_data.length; i++) {
-                    const cd = form_call_data[i];
-                    if (cd['valueType'] === 'bool') {
-                        call_data[cd['key_']] = cd['value'] === 'true' ? true : false
-                    } else if (cd['valueType'] === 'enum') {
-                        call_data[cd['key_']] = new CairoCustomEnum({ [cd['value']]: {} })
-                    }
-                    else {
-                        call_data[cd['key_']] = cd['value']
-                    }
-                }
-            }
 
-            // const func_call_data = CallData.compile(call_data)
-            const myCall = contract.populate(func_name, call_data)
-            contract[func_name](myCall.calldata).then((res: any) => {
+            const myCall = contract.populate(func_name, form.values.callData.map((item: any) => item.value))
+
+            contract[func_name](myCall.calldata, { parseResponse: true }).then((res: any) => {
                 setResult(res)
                 db.devnet_function_calls.add({
                     function_name: func_name,
@@ -140,6 +126,7 @@ const DevnetFunctionPage = () => {
                 setLoading(false)
                 loadFuncCalls()
             })
+
         }
     }
 
@@ -173,6 +160,24 @@ const DevnetFunctionPage = () => {
         return params
     }
 
+    function makeCode() {
+        const array_calldata = form.values.callData.map((item: any) => item.value)
+        const code = `
+const makeInteraction = () => {
+    const myCall = contract.populate('${function_name}', ${JSON.stringify(array_calldata)})
+    setLoading(true)
+    contract['${function_name}'](myCall.calldata).then((res: any) => {
+        console.info("Successful Response:", res)
+    }).catch((err: any) => {
+        console.error("Error: ", err)
+    }).finally(() => {
+        setLoading(false)
+    })
+}
+        `
+        setSourceCode(code)
+    }
+
     function loadFuncReturnTypes() {
         let output = ''
         if (functionInfo?.outputs?.length === 1) {
@@ -193,42 +198,9 @@ const DevnetFunctionPage = () => {
         }
     }
 
-    const openModal = (content: ReactNode, title: string) => {
-        return modals.openConfirmModal({
-            // withinPortal: true,
-            title,
-            children: (
-                <>
-                    <Box>
-                        {content}
-                    </Box>
-                </>
-            ),
-            size: 'lg',
-            radius: 'lg',
-            centered: true,
-        })
-    }
-
-    function getContentNode(content: any) {
-        if (typeof content === 'string') {
-            return (
-                <CodeHighlight language='js' code={`${content}`} />
-            )
-        }
-        else if (typeof content === 'bigint') {
-            return (
-                <CodeHighlight language='js' code={serialize(content)} />
-            )
-        }
-        else {
-            return (
-                <RoundedBox>
-                    <CodeHighlight language='json' code={serialize(content, { space: 4, isJSON: false })} />
-                </RoundedBox>
-            )
-        }
-    }
+    useEffect(() => {
+        makeCode()
+    }, [form.values.callData])
 
     useEffect(() => {
         resetPage()
@@ -314,6 +286,11 @@ const DevnetFunctionPage = () => {
                                     </Text>
                                 </Box>
                             </Box>
+                            <Box>
+                                <CodeHighlight language='ts' code={sourceCode ?? ''} style={{
+                                    borderRadius: '20px'
+                                }} />
+                            </Box>
                             <Group justify="start" py="md">
                                 <Button size="sm" radius={'md'} leftSection={<IconCloudUpload />} type="submit" rightSection={loading ? <Loader color="white" size={'xs'} /> : null}>
                                     {
@@ -324,84 +301,7 @@ const DevnetFunctionPage = () => {
                         </Stack>
                     </form>
                 </Box>
-                <DataTable
-                    bg={isDarkMode(colorScheme) ? theme.colors.dark[7] : theme.colors.violet[1]}
-                    minHeight={150}
-                    withTableBorder={false}
-                    withRowBorders={true}
-                    rowBorderColor={isDarkMode(colorScheme) ? theme.colors.gray[7] : theme.colors.gray[0]}
-                    borderRadius={'10px'}
-                    verticalSpacing={'md'}
-                    records={funcCalls || []}
-                    columns={[
-                        {
-                            accessor: 'id',
-                            width: '100px',
-                            title: '# ID'
-                        },
-                        {
-                            accessor: 'function_name',
-                            title: 'Function',
-                            width: '200px'
-                        },
-                        {
-                            accessor: 'calldata',
-                            title: 'Call Data',
-                            width: '100px',
-                            render: (item: any) => (
-                                <>
-                                    {
-                                        item?.calldata.length > 0 ? (
-                                            <Button variant='light' color="violet" size='xs' radius={'md'} onClick={() => {
-                                                const content = getContentNode(item.calldata)
-                                                openModal(content, "Call Data")
-                                            }}>
-                                                Show
-                                            </Button>
-                                        ) : '-'
-                                    }
-                                </>
-                            )
-                        },
-                        {
-                            accessor: 'status',
-                            width: '100px',
-                            title: 'Status',
-                            render: item => (
-                                <>
-                                    {
-                                        item?.status === 'success' ? (
-                                            <Badge color='green' size='sm' radius={'sm'} variant='light'>SUCCESS</Badge>
-                                        ) : (
-                                            <Badge color='red' size='sm' radius={'sm'} variant='light'>FAILED</Badge>
-                                        )
-                                    }
-                                </>
-                            )
-                        },
-                        {
-                            accessor: 'result',
-                            width: '100px',
-                            title: 'Result/Error',
-                            render: (item: any) => (
-                                <>
-
-                                    <Button variant='light' color="violet" size='xs' radius={'md'} onClick={() => {
-                                        const content = getContentNode(item?.status === 'success' ? item?.result : item?.error)
-                                        return openModal(content, item?.status === 'success' ? "Result" : "Error")
-                                    }}>
-                                        Show
-                                    </Button>
-                                </>
-                            )
-                        },
-                        // {
-                        //     accessor: 'actions',
-                        //     width: '100px',
-                        //     title: 'Actions'
-                        // },
-                    ]}
-                />
+                <FuncCallsTable funcCalls={funcCalls} />
             </Stack>
         </div>
     )

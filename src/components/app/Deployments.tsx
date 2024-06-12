@@ -41,7 +41,7 @@ export const InfoRow = (props: IInfoRow) => {
 
     return (
         <Group justify='space-between' wrap='nowrap' align='center'>
-            <Text size='sm' fw={500}>{title}</Text>
+            <Text size='sm' fw={400}>{title}</Text>
             <Group align='center' wrap='nowrap' gap={4}>
                 <Text size='xs' fw={400} c="dimmed">{limitChars(value ?? '', charLimit ? charLimit : 6, true)}</Text>
                 {

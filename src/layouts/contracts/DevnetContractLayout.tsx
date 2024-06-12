@@ -1,4 +1,4 @@
-import { Box, Container, Grid, Group, ScrollArea, SegmentedControl, Stack, Tabs, Text, TextInput, Title, useMantineColorScheme, useMantineTheme } from '@mantine/core';
+import { Box, Container, Grid, Group, ScrollArea, ScrollAreaAutosize, SegmentedControl, Stack, Tabs, Text, TextInput, Title, useMantineColorScheme, useMantineTheme } from '@mantine/core';
 import { useViewportSize } from '@mantine/hooks';
 import { getInterfaceName, isDarkMode, limitChars } from '../../configs/utils';
 import CustomSidebarNavLink from '../../components/navigation/CustomSidebarNavLink';
@@ -35,7 +35,7 @@ const SideBarContents = (props: ISideBarContents) => {
     const HEADER_HEIGHT = "280px"
 
     return (
-        <Stack h={'100%'} pt="md">
+        <Stack h={'100%'} py="md" px="xs">
             <Box pb="xs" h={HEADER_HEIGHT}>
                 <Stack px={'md'} gap={6}>
                     <CustomSidebarNavLink title={"Go to Contracts"} to={`/devnet/contracts/`}
@@ -68,7 +68,7 @@ const SideBarContents = (props: ISideBarContents) => {
             <Box component={ScrollArea} py={'sm'} scrollbarSize={10} style={{
                 background: isDarkMode(colorScheme) ? theme.colors.dark[7] : theme.colors.indigo[1],
                 // borderRadius: theme.radius.lg
-                borderRadius: "20px 20px 0 0",
+                borderRadius: "20px 20px 20px 20px",
                 height: `calc(100% - ${HEADER_HEIGHT})`
             }}>
                 <Stack gap={6}>
@@ -149,16 +149,17 @@ const SideBarContents = (props: ISideBarContents) => {
 interface ICustomBox {
     height: string | number
     children: ReactNode
+    radius?: any
 }
 
 const CustomBox = (props: ICustomBox) => {
-    const { height, children } = props
+    const { height, children, radius } = props
     const { colorScheme } = useMantineColorScheme()
 
     return (
         <Box h={height} style={theme => ({
             background: isDarkMode(colorScheme) ? theme.colors.dark[9] : theme.colors.gray[2],
-            borderRadius: theme.radius.md
+            borderRadius: radius ? theme.radius[radius] : theme.radius.md
         })}>
             {children}
         </Box>
@@ -176,17 +177,19 @@ const DevnetContractAppShell = (props: IContractLayout) => {
         <Container size={"xxl"} p={"sm"} style={{ overflow: "hidden" }} h={HEIGHT}>
             <Grid h={HEIGHT}>
                 <Grid.Col span={3} h={HEIGHT}>
-                    <CustomBox height={'100%'}>
+                    <CustomBox height={'100%'} radius={'lg'}>
                         <SideBarContents deployment={deployment} interfaces={interfaces} functions={functions} extra_functions={extra_functions} />
                     </CustomBox>
                 </Grid.Col>
                 <Grid.Col h={HEIGHT} span={9}>
-                    <CustomBox height={'100%'}>
-                            <Container size={'xxl'} h={'100%'} style={{overflowY: 'auto'}}>
-                                <Box py={'lg'}>
+                    <CustomBox height={'100%'} radius={'lg'}>
+                        <Container size={'xxl'} h={'100%'} py="md" px="0" style={{overflow: "hidden"}}>
+                            <ScrollAreaAutosize h="100%">
+                                <Box px="md">
                                     {children}
                                 </Box>
-                            </Container>
+                            </ScrollAreaAutosize>
+                        </Container>
                     </CustomBox>
                 </Grid.Col>
             </Grid>
