@@ -6,11 +6,13 @@ import { useForm } from '@mantine/form'
 import { showNotification } from '@mantine/notifications'
 import { db } from '../db'
 import { isDarkMode } from '../configs/utils'
+import { useNavigate } from 'react-router-dom'
 
 const ImportContract = () => {
     const { provider, chainId } = useAppContext()
     const [loading, setLoading] = useState(false)
     const { colorScheme } = useMantineColorScheme()
+    const navigate = useNavigate()
 
     const form = useForm({
         initialValues: {
@@ -42,6 +44,7 @@ const ImportContract = () => {
                         icon: <IconCheck />
                     })
                     // window.location.reload()
+                    navigate('/contracts')
                 }).catch((err: any) => {
                     showNotification({
                         title: 'Unable to import contract',

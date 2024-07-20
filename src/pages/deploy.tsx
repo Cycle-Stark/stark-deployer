@@ -5,7 +5,7 @@ import { useForm } from "@mantine/form"
 import { IconAlertTriangle, IconCheck, IconCloudUpload, IconInfoCircle, IconPlus, IconTrash, IconX } from "@tabler/icons-react"
 import { useAppContext } from "../providers/AppProvider"
 import { useState } from "react"
-import { CairoCustomEnum, CallData, ContractFactory, DeclareContractPayload, hash } from "starknet"
+import { CairoCustomEnum, CallData, DeclareContractPayload, hash } from "starknet"
 import { showNotification } from "@mantine/notifications"
 import { isDarkMode } from "../configs/utils"
 import Deployments from "../components/app/Deployments"
@@ -214,43 +214,27 @@ const Deploy = () => {
         }
 
         const sierraAsString = await readFileAsString(form.values.sierraFile as File)
-        // const casmAsString = await readFileAsString(form.values.casmFile as File)
 
         const contractConstructor = CallData.compile(call_data)
-
-        const sierraAsJson = JSON.parse(sierraAsString)
-        const casmAsString = await readFileAsString(form.values.casmFile as File)
-        const casm = JSON.parse(casmAsString)
         const classHash = hash.computeSierraContractClassHash(JSON.parse(sierraAsString))
-        const compiledClassHash = hash.computeCompiledClassHash(casm)
 
-        const contract_ = new ContractFactory(
-            {
-                account,
-                abi: sierraAsJson?.abi,
-                casm,
-                compiledContract: sierraAsJson,
-                classHash,
-                compiledClassHash,
-            }
-        )
-
-        contract_.deploy(contractConstructor).then((res: any) => {
+        account.deploy({ classHash: classHash, constructorCalldata: contractConstructor }).then((res: any) => {
             const currentTime = new Date()
             db.contracts.add({
                 name: form.values.contractName,
                 tx_info: res,
                 date: `${currentTime.toDateString()} ${currentTime.toLocaleTimeString()}`,
                 chainId: chainId,
-                contract_address: res?.address,
+                contract_address: res?.contract_address[0],
                 abi: JSON.parse(sierraAsString)
             }).then((res) => {
+                console.log("Deployment res: ", res)
                 showNotification({
                     message: `New Contract saved with ID: ${res}`,
                     color: "green",
                     icon: <IconCheck />
                 })
-                // window.location.reload()
+                window.location.reload()
             }).catch((err: any) => {
                 showNotification({
                     message: `Unable to save the new contract: ${err}`,
@@ -273,47 +257,6 @@ const Deploy = () => {
             setLoading(false)
             setClassHash(null)
         })
-
-        // account.declareAndDeploy(payload).then((res: any) => {
-        //     // account.deploy({ classHash: classHash, constructorCalldata: contractConstructor }).then((res: any) => {
-        //     console.log("deployment result: ", res)
-        //     const currentTime = new Date()
-        //     db.contracts.add({
-        //         name: form.values.contractName,
-        //         tx_info: res,
-        //         date: `${currentTime.toDateString()} ${currentTime.toLocaleTimeString()}`,
-        //         chainId: chainId,
-        //         contract_address: res?.deploy?.contract_address,
-        //         abi: JSON.parse(sierraAsString)
-        //     }).then((res) => {
-        //         showNotification({
-        //             message: `New Contract saved with ID: ${res}`,
-        //             color: "green",
-        //             icon: <IconCheck />
-        //         })
-        //         // window.location.reload()
-        //     }).catch((err: any) => {
-        //         showNotification({
-        //             message: `Unable to save the new contract: ${err}`,
-        //             color: "red",
-        //             icon: <IconX />
-        //         })
-        //     })
-
-        //     form.reset()
-        //     setClassHash(null)
-        // }).catch((err: any) => {
-        //     console.log("Deployment error: ", err)
-        //     showNotification({
-        //         message: `Failed to Deploy: ${err}`,
-        //         color: 'red',
-        //         icon: <IconAlertTriangle />,
-        //         variant: 'light'
-        //     })
-        // }).finally(() => {
-        //     setLoading(false)
-        //     setClassHash(null)
-        // })
 
     }
 

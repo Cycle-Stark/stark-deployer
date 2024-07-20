@@ -14,7 +14,8 @@ const CustomSidebarNavLink = ({ to, title, icon, color }: ICustomTabLinkProps) =
     let match = useMatch({ path: resolved.pathname, end: true });
 
     return (
-        <MantineNavLink leftSection={icon} component={Link} label={title} color={color} to={to} active={true} variant={match ? 'light' : 'default'} style={theme => ({
+        <MantineNavLink leftSection={icon} 
+        component={Link} label={title} color={color} to={to} active={true} variant={match ? 'light' : 'default'} style={theme => ({
             // outline: `2px solid ${true ? color: 'transparent'}`,
             outlineOffset: "2px",
             border: "none",

@@ -1,6 +1,7 @@
-import { Stack, Text, Title } from "@mantine/core"
+import { Alert, Code, em, List, Stack, Text, Title } from "@mantine/core"
 import WrapperBox from "./WrapperBox"
 import { CodeHighlight } from "@mantine/code-highlight"
+import { IconStar } from "@tabler/icons-react"
 
 const instructions = [
     {
@@ -9,8 +10,13 @@ const instructions = [
         language: "shell"
     },
     {
+        title: 'Make Dump Directory (If not exits)',
+        code: `mkdir -p ~/starknet_devnet`,
+        language: "ts"
+    },
+    {
         title: 'Run Devnet',
-        code: `starknet-devnet`,
+        code: `starknet-devnet --seed 2261389508 --dump-path ~/starknet_devnet/dump --dump-on exit`,
         language: "ts"
     }
 ]
@@ -40,6 +46,16 @@ const DevnetInstructions = () => {
                             <Instruction key={`instruction_${i}`} index={i + 1} {...item} />
                         ))
                     }
+                    <Alert title="Take Note" color="orange" radius={'lg'} variant="filled">
+                        <Text>
+                            In the run command we have passed in the:
+                        </Text>
+                        <List>
+                            <List.Item icon={<IconStar stroke={em(1.5)} size={'14px'} />}><Code>--seed</Code> - To get same accounts all through (Don't change the seed you started with).</List.Item>
+                            <List.Item icon={<IconStar stroke={em(1.5)} size={'14px'} />}><Code>--dump-path</Code> - To allow dumping so that we can retrieve our old contracts.</List.Item>
+                            <List.Item icon={<IconStar stroke={em(1.5)} size={'14px'} />}><Code>--dump-on</Code> - To allow dumping on exit.</List.Item>
+                        </List>
+                    </Alert>
                 </Stack>
             </WrapperBox>
         </div>

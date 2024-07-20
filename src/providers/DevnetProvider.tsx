@@ -34,19 +34,12 @@ const DevnetProvider = ({ children }: IDevnetProvider) => {
     const [devnetServerStatus, setDevnetServerStatus] = useState(false)
 
     const [accounts, setAccounts] = useState<any>([])
-
-    // const [opened, { close, open }] = useDisclosure(false);
-
-    // const urlRegex = /^(https?:\/\/)?([a-zA-Z0-9-]+\.){1,}[a-zA-Z]{2,}(\/[a-zA-Z0-9-_.~!*'();:@&=+$,%#]+)*\/?$/;
-
     const matches = useMediaQuery('(max-width: 768px)');
-    // const snap = useSnapshot(appState, { sync: true })
 
 
     const connectAccount = async (index?: number) => {
         if (accounts?.length > 0) {
             const acc = accounts[index ?? 0]
-            // console.log(acc)
             const provider = new RpcProvider({ nodeUrl: "http://127.0.0.1:5050/rpc" })
             const account = new Account(provider, acc?.address, acc?.private_key, '1')
 

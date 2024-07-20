@@ -14,7 +14,6 @@ import DevnetLayout from "./layouts/DevnetLayout";
 import Accounts from "./pages/devnet/Accounts";
 import DeployedContracts from "./pages/devnet/DeployedContracts";
 import DeployContract from "./pages/devnet/DeployContract";
-import { DevnetContractLayout } from "./layouts/contracts/DevnetContractLayout";
 import CustomMantineProvider from "./layouts/CustomMantineProvider";
 import DevnetContractDashboard from "./pages/devnet/contract/DevnetContractDashboard";
 import DevnetContractTransactions from "./pages/devnet/contract/DevnetContractTransactions";
@@ -71,7 +70,7 @@ function App() {
               <Route path="/devnet/" element={<DevnetDashboard />} />
               <Route path="/devnet/contracts" element={<Outlet />}>
                 <Route path="/devnet/contracts" element={<DeployedContracts />} />
-                <Route path="/devnet/contracts/interact/:contract_id/" element={<DevnetContractLayout><Outlet /></DevnetContractLayout>}>
+                <Route path="/devnet/contracts/interact/:contract_id/" element={<Outlet />}>
                   <Route path="/devnet/contracts/interact/:contract_id/dashboard" element={<DevnetContractDashboard />} />
                   <Route path="/devnet/contracts/interact/:contract_id/transactions" element={<DevnetContractTransactions />} />
                   <Route path="/devnet/contracts/interact/:contract_id/abi" element={<DevnetContractAbi />} />
@@ -80,6 +79,7 @@ function App() {
               </Route>
               <Route path="/devnet/deploy" element={<DeployContract />} />
               <Route path="/devnet/accounts" element={<Accounts />} />
+              <Route path="/devnet/import" element={<Devnet />} />
               <Route path="/devnet/settings" element={<Devnet />} />
             </Route>
             <Route path="*" element={<MainLayout><NotFound /></MainLayout>} />

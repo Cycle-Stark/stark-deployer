@@ -1,10 +1,9 @@
 import { ActionIcon, AppShell, Box, Container, Group, Image, ScrollArea, Stack, Title, useMantineColorScheme, useMantineTheme } from '@mantine/core'
 import { ReactNode } from 'react'
 import { isDarkMode } from '../configs/utils'
-import { Link } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import ColorSchemeToggle from '../components/ColorSchemeToggle'
-import { IconAdjustmentsHorizontal, IconCodeAsterix, IconDashboard, IconHome2, IconSettings, IconUpload, IconUsersGroup } from '@tabler/icons-react'
-import { CustomSidebarIconLink } from '../components/navigation/CustomSidebarNavLink'
+import { IconAdjustmentsHorizontal } from '@tabler/icons-react'
 import CheckConnectionBtn from '../components/devnet/CheckConnectionBtn'
 import CustomAccordion, { AccordionItem } from '../components/common/CustomAccordion'
 import AboutContract from '../components/handy_tools/AboutContract'
@@ -12,6 +11,9 @@ import ApproveTool from '../components/handy_tools/ApproveTool'
 import ConvertToLargeNumber from '../components/handy_tools/ConvertToLargeNumber'
 import { useDisclosure } from '@mantine/hooks'
 import { SwitchAccountBtn } from '../components/devnet/SwitchAccountBtn'
+import CustomNavLink, { ICustomNavLinkProps, devnetNavlinks } from '../components/navigation/CustomNavLink'
+import { useDevnetContractContext } from '../providers/DevnetContractProvider'
+import { SideBarContents } from './contracts/DevnetContractLayout'
 interface IDevnetAppShell {
     children: ReactNode
 }
@@ -23,6 +25,8 @@ const DevnetAppShell = (props: IDevnetAppShell) => {
 
     const { colorScheme } = useMantineColorScheme()
     const theme = useMantineTheme()
+    const { contract_id } = useParams()
+    const { interfaces, deployment, functions, extra_functions } = useDevnetContractContext()
 
     const itemList: AccordionItem[] = [
         {
@@ -56,7 +60,7 @@ const DevnetAppShell = (props: IDevnetAppShell) => {
             </Stack>
         )
     }
-
+ 
 
     return (
         <Box style={{
@@ -68,57 +72,49 @@ const DevnetAppShell = (props: IDevnetAppShell) => {
             position: "relative"
         }}>
             <AppShell
-                navbar={{ breakpoint: 'xs', width: { base: 80, xs: 80, sm: 60, xl: 80, lg: 80 } }}
+                navbar={{ breakpoint: 'xs', width: { base: 300 }, collapsed: { desktop: !contract_id ? true : false, mobile: true } }}
                 header={{ height: { base: 70 } }}
-                aside={{ width: { base: 300, lg: 450 }, breakpoint: "sm", collapsed: { desktop: aside[0], mobile: aside[0] } }}
-                layout='alt'
+                aside={{ width: { base: 350, lg: 350 }, breakpoint: "sm", collapsed: { desktop: aside[0], mobile: aside[0] } }}
+                layout='default'
             >
-                <AppShell.Header withBorder={false} zIndex={999}>
+                <AppShell.Header withBorder={false}>
                     <Container size={'xxl'} className='h-100'>
                         <Group className='h-100' align='center' justify='space-between'>
-                            <Title>Devnet</Title>
-                            <Group className='h-100' align='center'>
+                            <Group justify='center'>
+                                <Link to={'/devnet'}>
+                                    <Image src={'/images/icons/ico.png'} w={'50px'} />
+                                </Link>
+                                <Title>Devnet</Title>
+                            </Group>
+                            <Group>
+                                {
+                                    devnetNavlinks?.map((link: ICustomNavLinkProps, i: number) => (
+                                        <CustomNavLink key={`navlink_${i}`} {...link} />
+                                    ))
+                                }
+                            </Group>
+                            <Group className='h-100' align='center' justify='center'>
                                 <CheckConnectionBtn />
                                 <SwitchAccountBtn />
                                 <ActionIcon onClick={aside[1].toggle} variant='light' radius='md'>
                                     <IconAdjustmentsHorizontal />
                                 </ActionIcon>
+                                <ColorSchemeToggle />
                             </Group>
                         </Group>
                     </Container>
                 </AppShell.Header>
-                <AppShell.Navbar bg={isDarkMode(colorScheme) ? theme.colors.dark[8] : theme.colors.gray[2]} withBorder={false}>
-                    <AppShell.Section h={70} py="sm" bg={isDarkMode(colorScheme) ? theme.colors.dark[7] : theme.white}>
-                        <Group justify='center'>
-                            <Link to={'/'}>
-                                <Image src={'/images/icons/ico.png'} w={'50px'} />
-                            </Link>
-                        </Group>
-                    </AppShell.Section>
-                    <AppShell.Section grow component={ScrollArea} scrollbarSize={10}>
-                        <Box p={'md'}>
-                            <Stack align='center' gap={10}>
-                                {/* <CustomSidebarIconLink to={'/'} title={'Home'} icon={<IconHome2 />} color={'red'} /> */}
-                                <CustomSidebarIconLink to={'/devnet'} title={'Dashboard'} icon={<IconDashboard />} color={'indigo'} />
-                                <CustomSidebarIconLink to={'/devnet/contracts'} title={'Contracts'} icon={<IconCodeAsterix />} color={'indigo'} />
-                                <CustomSidebarIconLink to={'/devnet/deploy'} title={'Deploy Contract'} icon={<IconUpload />} color={'indigo'} />
-                                <CustomSidebarIconLink to={'/devnet/accounts'} title={'Accounts'} icon={<IconUsersGroup />} color={'indigo'} />
-                                <CustomSidebarIconLink to={'/devnet/settings'} title={'Settings'} icon={<IconSettings />} color={'indigo'} />
-                            </Stack>
-                        </Box>
-                    </AppShell.Section>
-                    <AppShell.Section bg={isDarkMode(colorScheme) ? theme.colors.dark[7] : theme.colors.gray[3]}>
-                        <Stack align='center' gap={10} py="lg">
-                            <CustomSidebarIconLink to={'/'} title={'Home'} icon={<IconHome2 />} color={'indigo'} />
-                            <ColorSchemeToggle size={42} />
-                        </Stack>
-                    </AppShell.Section>
+                <AppShell.Navbar bg={isDarkMode(colorScheme) ? theme.colors.dark[8] : theme.colors.gray[0]} withBorder={false} py={'xs'}>
+                    <SideBarContents deployment={deployment} interfaces={interfaces} functions={functions} extra_functions={extra_functions} />
                 </AppShell.Navbar>
                 <AppShell.Main>
-                    <Box style={{
-                        transition: "all 0.5s ease-in-out"
-                    }}>
-                        {children}
+                    <Box p="md">
+                        <Box p={'xs'} style={theme => ({
+                            background: isDarkMode(colorScheme) ? theme.colors.dark[6] : theme.colors.gray[2],
+                            borderRadius: theme.radius.md
+                        })}>
+                            {children}
+                        </Box>
                     </Box>
                 </AppShell.Main>
                 <AppShell.Aside withBorder={false} p={0} pt={70}>

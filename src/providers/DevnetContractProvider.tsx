@@ -1,9 +1,10 @@
 import { createContext, useContext, ReactNode, useMemo, useState, useEffect } from "react"
-import { Contract } from "starknet"
+import { Contract, RpcProvider } from "starknet"
 import { db } from "../db"
 import { useParams } from "react-router-dom"
-import { useLiveQuery } from "dexie-react-hooks"
 import { useDevnetContext } from "./DevnetProvider"
+import { showNotification } from "@mantine/notifications"
+import { IconCheck } from "@tabler/icons-react"
 
 
 const initialData = {
@@ -16,7 +17,8 @@ const initialData = {
     extra_functions: null as any,
     get_function_info: null as any,
     connectContract: null as any,
-    contract_id: null as any
+    contract_id: null as any,
+    reloadAbi: null as any,
 }
 
 interface IDevnetContractProvider {
@@ -30,6 +32,7 @@ interface IDevnetContractProvider {
     get_function_info: any
     connectContract: any
     contract_id: any
+    reloadAbi: any
 }
 
 export const DevnetContractContext = createContext(initialData)
@@ -51,7 +54,7 @@ const DevnetContractProvider = (props: IAppProvider) => {
 
     const { account } = useDevnetContext()
 
-    const _deployment = useLiveQuery(() => db.devnet_contracts.get(Number(contract_id ?? '0')));
+    // const _deployment = useLiveQuery(() => db.devnet_contracts.get(Number(contract_id ?? '0')));
 
     const makeContractConnection = () => {
         if (account && deployment?.abi) {
@@ -61,27 +64,38 @@ const DevnetContractProvider = (props: IAppProvider) => {
         }
     }
 
-    const loadAbi = () => {
-        // const id: any = contract_id
-        // axios.get(`${URLS.abi_endpoint}/${deployment?.contract_address}`).then((res: any) => {
-        //     db.contracts.update(Number(id), { abi: res?.data }).then((_res: any) => {
-        //         showNotification({
-        //             message: "Updated contract abi",
-        //             color: "green",
-        //             icon: <IconCheck />
-        //         })
-        //         window.location.reload()
-        //     }).catch((err: any) => {
-        //     })
-        // }).catch(() => { })
+    const handleLoadABI = async () => {
+        const provider = new RpcProvider({ nodeUrl: "http://localhost:5050/rpc", retries: 200, });
+        if (provider) {
+            const new_abi = await provider.getClassAt(deployment?.contract_address)
+            const id: any = contract_id
+            console.log("Reloaded abi: ", new_abi)
+
+            db.devnet_contracts.update(Number(id), { abi: new_abi }).then((_res: any) => {
+                showNotification({
+                    message: "Updated contract abi",
+                    color: "green",
+                    icon: <IconCheck />
+                })
+                setTimeout(() => {
+                    window.location.reload()
+                }, 1500)
+            }).catch((err: any) => {
+                showNotification({
+                    title: 'Unable to reload abi',
+                    message: `${err}`,
+                    color: 'red'
+                })
+            })
+        }
     }
 
-    // const loadDeployment = () => {
-    //     const id: any = contract_id
-    //     db.contracts.get(Number(id)).then((res: any) => {
-    //         setDeployment(res)
-    //     }).catch(() => { })
-    // }
+    const loadDeployment = () => {
+        const id: any = contract_id
+        db.devnet_contracts.get(Number(id)).then((res: any) => {
+            setDeployment(res)
+        }).catch(() => { })
+    }
 
     const getInterfaces = () => {
         const interfaces = deployment?.abi?.abi?.filter((item: any) => item?.type === 'interface') ?? []
@@ -118,30 +132,17 @@ const DevnetContractProvider = (props: IAppProvider) => {
         extra_functions: getExtraFunctions(),
         get_function_info: getFunctionInfo,
         connectContract: makeContractConnection,
-        contract_id
+        contract_id,
+        reloadAbi: handleLoadABI
     }), [contract_id, account, deployment, contract]);
-
-    // useEffect(() => {
-    //     if (!deployment) {
-    //         loadDeployment()
-    //     }
-    // }, [contract_id])
-
-    useEffect(() => {
-        if (deployment && !deployment?.abi) {
-            loadAbi()
-        }
-    }, [deployment])
 
     useEffect(() => {
         makeContractConnection()
-    }, [account, contract_id, deployment])
+    }, [account, deployment])
 
     useEffect(() => {
-        if (_deployment) {
-            setDeployment(_deployment)
-        }
-    }, [_deployment])
+        loadDeployment()
+    }, [contract_id])
 
     return (
         <DevnetContractContext.Provider value={contextValue}>

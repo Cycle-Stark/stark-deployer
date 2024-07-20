@@ -208,6 +208,7 @@ const AppProvider = ({ children }: IAppProvider) => {
     }, [matches]);
 
     useEffect(() => {
+        connectWallet()
         setChainId(snap.activeChainId ?? 'SN_SEPOLIA');
     }, []);
 

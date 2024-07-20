@@ -59,6 +59,9 @@ export class StarkDeployerDexie extends Dexie {
     this.version(8).stores({
       notes:  '++id, note, title'
     });
+    this.version(10).stores({
+      contracts:  '++id, name, contract_address, name, chainId'
+    });
   }
 }
 

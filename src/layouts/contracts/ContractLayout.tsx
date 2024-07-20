@@ -72,7 +72,7 @@ const ContractAppShell = (props: IContractLayout) => {
             navbar={{ width: 320, breakpoint: 'sm', collapsed: { mobile: !opened } }}
             aside={{ width: { base: 420 }, breakpoint: "sm", collapsed: { desktop: aside[0], mobile: aside[0] } }}
             padding="md"
-        >
+        > 
             <AppShell.Header>
                 <Group h="100%" px="md" justify='space-between'>
                     <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />

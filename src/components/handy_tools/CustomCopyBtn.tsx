@@ -1,5 +1,5 @@
-import { ActionIcon, CopyButton, Tooltip } from "@mantine/core"
-import { IconCopy } from "@tabler/icons-react"
+import { ActionIcon, CopyButton, em, Tooltip } from "@mantine/core"
+import { IconCheck, IconCopy } from "@tabler/icons-react"
 
 
 
@@ -14,8 +14,8 @@ const CustomCopyBtn = (props: ICustomCopyBtn) => {
         <CopyButton value={copy_value}>
             {({ copied, copy }) => (
                 <Tooltip label={copied ? 'Copied' : 'Copy'} >
-                    <ActionIcon variant="light" size={'sm'} radius={'md'} color={copied ? `${color}.9` : color} onClick={copy}>
-                        <IconCopy />
+                    <ActionIcon variant="transparent" size={'sm'} radius={'md'} color={copied ? `${color}.9` : color} onClick={copy}>
+                        {copied ? <IconCheck stroke={em(1.5)} size="18px" /> : <IconCopy stroke={em(1.5)} size="18px" />}
                     </ActionIcon>
                 </Tooltip>
             )}

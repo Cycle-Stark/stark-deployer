@@ -7,14 +7,12 @@ interface IColorSchemeToggle {
 }
 const ColorSchemeToggle = (props: IColorSchemeToggle) => {
     const { size } = props
-    
+
     const { colorScheme, setColorScheme } = useMantineColorScheme()
     return (
-        <div>
-            <ActionIcon size={size} variant='subtle' radius={'md'} onClick={() => setColorScheme(isDarkMode(colorScheme) ? 'light' : 'dark')}>
-                {isDarkMode(colorScheme) ? <IconSun /> : <IconMoon />}
-            </ActionIcon>
-        </div>
+        <ActionIcon size={size} variant='subtle' radius={'md'} onClick={() => setColorScheme(isDarkMode(colorScheme) ? 'light' : 'dark')}>
+            {isDarkMode(colorScheme) ? <IconSun /> : <IconMoon />}
+        </ActionIcon>
     )
 }
 

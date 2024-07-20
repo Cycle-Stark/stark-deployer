@@ -62,7 +62,7 @@ const CustomFuncCallsDataTable = (props: ICustomFuncCallsDataTable) => {
     return (
         <DataTable
             bg={isDarkMode(colorScheme) ? theme.colors.dark[7] : theme.colors.violet[1]}
-            minHeight={150}
+            minHeight={250}
             withTableBorder={false}
             withRowBorders={true}
             rowBorderColor={isDarkMode(colorScheme) ? theme.colors.gray[7] : theme.colors.gray[0]}

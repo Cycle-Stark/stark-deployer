@@ -9,6 +9,8 @@ import { useLiveQuery } from "dexie-react-hooks"
 import { Button, Group, Modal, Stack, TextInput } from "@mantine/core"
 import { useForm } from "@mantine/form"
 import { useDisclosure } from "@mantine/hooks"
+import { useSnapshot } from "valtio"
+import appState from "../configs/storage"
 
 
 const initialData = {
@@ -39,7 +41,7 @@ interface IContractProvider {
 }
 
 export const ContractContext = createContext(initialData)
- 
+
 export const useContractContext = () => {
     return useContext(ContractContext)
 }
@@ -50,18 +52,21 @@ interface IAppProvider {
 
 const ContractProvider = (props: IAppProvider) => {
     const { children } = props
-    const { account } = useAppContext()
+    const { account, chainId } = useAppContext()
     const [ctx, setCtx] = useState<IContractProvider>(initialData)
     const { contract_id } = useParams()
     const [deployment, setDeployment] = useState<any | null>(null)
     const [contract, setContract] = useState<any | null>()
     const [opened, { close, open }] = useDisclosure(false);
+    const [loading, setLoading] = useState(false)
+
+    const snap = useSnapshot(appState, { sync: true });
 
     const _deployment = useLiveQuery(() => db.contracts.get(Number(contract_id ?? '0')));
-    // console.log(deployment)
+    
     const form = useForm({
         initialValues: {
-            endpoint: ''
+            endpoint: chainId === 'SN_SEPOLIA' ? snap.sepoliaRPCEndpoint : snap.mainnetRPCEndpoint
         },
         validate: {
             endpoint: val => val === '' || val?.length < 5 ? 'Please enter valid endpoint' : null
@@ -81,24 +86,27 @@ const ContractProvider = (props: IAppProvider) => {
         if (provider) {
             const new_abi = await provider.getClassAt(deployment?.contract_address)
             const id: any = contract_id
+            setLoading(true)
             db.contracts.update(Number(id), { abi: new_abi }).then((_res: any) => {
                 showNotification({
                     message: "Updated contract abi",
                     color: "green",
                     icon: <IconCheck />
                 })
-                window.location.reload()
+                setTimeout(() => {
+                    window.location.reload()
+                }, 1500)
             }).catch((err: any) => {
                 showNotification({
                     title: 'Unable to reload abi',
                     message: `${err}`,
                     color: 'red'
                 })
+            }).finally(() => {
+                setLoading(false)
             })
         }
     }
-
-
 
     const reLoadAbi = () => {
         open()
@@ -167,7 +175,7 @@ const ContractProvider = (props: IAppProvider) => {
                     <Stack gap={10}>
                         <TextInput label="RPC Endpoint" {...form.getInputProps('endpoint')} placeholder="https://starknet-goerli..." />
                         <Group justify="center">
-                            <Button type="submit" radius={'md'}>Reload</Button>
+                            <Button type="submit" radius={'md'} loading={loading}>Reload</Button>
                         </Group>
                     </Stack>
                 </form>

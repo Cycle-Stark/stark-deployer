@@ -37,6 +37,34 @@ export const navlinks: ICustomNavLinkProps[] = [
     },
 ]
 
+export const devnetNavlinks: ICustomNavLinkProps[] = [
+    {
+        to: '/devnet/contracts/',
+        title: 'Contracts',
+        icon: <IconHomeEco stroke={1.5} />
+    },
+    {
+        to: '/devnet/deploy',
+        title: 'Deploy',
+        icon: <IconHomeEco stroke={1.5} />
+    },
+    {
+        to: '/devnet/accounts',
+        title: 'Accounts',
+        icon: <IconHomeEco stroke={1.5} />
+    },
+    // {
+    //     to: '/devnet/import',
+    //     title: 'Import',
+    //     icon: <IconHomeEco stroke={1.5} />
+    // },
+    {
+        to: '/devnet/settings',
+        title: 'Settings',
+        icon: <IconHomeEco stroke={1.5} />
+    },
+]
+
 const CustomNavLink = ({ to, title }: ICustomNavLinkProps) => {
     let resolved = useResolvedPath(to);
     let match = useMatch({ path: resolved.pathname, end: true });

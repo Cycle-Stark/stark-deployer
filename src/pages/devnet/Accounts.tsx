@@ -34,16 +34,16 @@ const Accounts = () => {
                             accessor: "initial_balance",
                             width: "250px",
                             render: (item) => (
-                                <Text size="sm" c="dimmed">{BigNumber(item.initial_balance).dividedBy(10 ** 18).decimalPlaces(4).toString()} ETH</Text>
+                                <Text size="sm" fw={500} c="dimmed">{BigNumber(item.initial_balance).dividedBy(10 ** 18).decimalPlaces(4).toString()} ETH</Text>
                             )
                         },
                         {
                             accessor: "address",
                             width: "300px",
                             render: (item) => (
-                                <Group>
+                                <Group gap={'xs'}>
                                     <CustomCopyBtn color={"blue"} copy_value={item.address} />
-                                    <Text size="sm" c="dimmed">
+                                    <Text size="xs" c="dimmed">
                                         {limitChars(item.address, 20, true)}
                                     </Text>
                                 </Group>
@@ -53,9 +53,9 @@ const Accounts = () => {
                             accessor: "public_key",
                             width: "300px",
                             render: (item) => (
-                                <Group>
+                                <Group gap={'xs'}>
                                     <CustomCopyBtn color={"blue"} copy_value={item.public_key} />
-                                    <Text size="sm" c="dimmed">
+                                    <Text size="xs" c="dimmed">
                                         {limitChars(item.public_key, 20, true)}
                                     </Text>
                                 </Group>
@@ -65,9 +65,9 @@ const Accounts = () => {
                             accessor: "private_key",
                             width: "300px",
                             render: (item) => (
-                                <Group>
+                                <Group gap={'xs'}>
                                     <CustomCopyBtn color={"blue"} copy_value={item.private_key} />
-                                    <Text size="sm" c="dimmed">
+                                    <Text size="xs" c="dimmed">
                                         {limitChars(item.private_key, 20, true)}
                                     </Text>
                                 </Group>

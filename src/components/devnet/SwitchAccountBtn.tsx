@@ -1,5 +1,7 @@
-import { Menu, Button, rem, useMantineColorScheme, useMantineTheme, CopyButton } from '@mantine/core';
+import { Menu, Button, rem, useMantineColorScheme, useMantineTheme, CopyButton, Group, ActionIcon, em, Text } from '@mantine/core';
 import {
+    IconCheck,
+    IconCopy,
     IconWallet,
 } from '@tabler/icons-react';
 import { useDevnetContext } from '../../providers/DevnetProvider';
@@ -25,20 +27,28 @@ export function SwitchAccountBtn() {
                             <Menu.Label>Accounts</Menu.Label>
                             {
                                 accounts?.map((acc: any, i: number) => (
-                                    <CopyButton key={acc?.address} value={acc?.address}>
-                                        {({ copied, copy }) => (
-                                            <Menu.Item key={`account_${i}`}
-                                                color={address === acc?.address ? 'green' : isDarkMode(colorScheme) ? theme.colors.gray[1] : theme.colors.dark[4]}
-                                                variant={address === acc?.address ? 'light' : 'outline'}
-                                                onClick={() => connectAccount(i) && copy()}
-                                                leftSection={<IconWallet style={{ width: rem(14), height: rem(14) }} />}
-                                                fw={500}
-                                            >
-                                                {copied ? 'Copied' : limitChars(acc?.address ?? '', 16, true)}
-                                            </Menu.Item>
-                                        )}
-                                    </CopyButton>
-
+                                    <Group key={acc?.address} wrap='nowrap'>
+                                        <Menu.Item key={`account_${i}`}
+                                            color={address === acc?.address ? 'green' : isDarkMode(colorScheme) ? theme.colors.gray[1] : theme.colors.dark[4]}
+                                            variant={address === acc?.address ? 'light' : 'outline'}
+                                            onClick={() => connectAccount(i)}
+                                            leftSection={<IconWallet style={{ width: rem(14), height: rem(14) }} />}
+                                            fw={500}
+                                            fs={'14px'}
+                                        >
+                                            <Text size='xs' fw={500}>{limitChars(acc?.address ?? '', 16, true)}</Text>
+                                        </Menu.Item>
+                                        <CopyButton value={acc?.address}>
+                                            {({ copied, copy }) => (
+                                                <ActionIcon onClick={copy} size={'xs'} variant='transparent' color={copied ? 'green' : 'blue'}>
+                                                    {
+                                                        copied ? <IconCheck stroke={em(1.5)} size={'18px'} /> :
+                                                            <IconCopy stroke={em(1.5)} size={'18px'} />
+                                                    }
+                                                </ActionIcon>
+                                            )}
+                                        </CopyButton>
+                                    </Group>
                                 ))
                             }
                         </Menu.Dropdown>

@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import DevnetAppShell from "./DevnetAppShell";
 import DevnetProvider from "../providers/DevnetProvider";
+import DevnetContractProvider from "../providers/DevnetContractProvider";
 
 interface IDevnetLayout {
     children: ReactNode
@@ -9,11 +10,13 @@ interface IDevnetLayout {
 const DevnetLayout = (props: IDevnetLayout) => {
     const { children } = props
     return (
-            <DevnetProvider>
+        <DevnetProvider>
+            <DevnetContractProvider>
                 <DevnetAppShell>
                     {children}
                 </DevnetAppShell>
-            </DevnetProvider>
+            </DevnetContractProvider>
+        </DevnetProvider>
     )
 }
 

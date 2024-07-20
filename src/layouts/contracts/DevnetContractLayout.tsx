@@ -1,15 +1,9 @@
-import { Box, Container, Grid, Group, ScrollArea, ScrollAreaAutosize, SegmentedControl, Stack, Tabs, Text, TextInput, Title, useMantineColorScheme, useMantineTheme } from '@mantine/core';
-import { useViewportSize } from '@mantine/hooks';
-import { getInterfaceName, isDarkMode, limitChars } from '../../configs/utils';
+import { AppShell, Box, Button, Group, ScrollArea, SegmentedControl, Stack, Tabs, TextInput, Title } from '@mantine/core';
+import { getInterfaceName, limitChars } from '../../configs/utils';
 import CustomSidebarNavLink from '../../components/navigation/CustomSidebarNavLink';
-import { IconCodeAsterix, IconDashboard, IconEye, IconSearch, IconTransactionBitcoin, IconWriting, IconX } from '@tabler/icons-react';
+import { IconCodeAsterix, IconDashboard, IconEye, IconReload, IconSearch, IconTransactionBitcoin, IconWriting, IconX } from '@tabler/icons-react';
 import { useForm } from '@mantine/form';
-import DevnetContractProvider, { useDevnetContractContext } from '../../providers/DevnetContractProvider';
-import { ReactNode } from 'react';
-
-interface IContractLayout {
-    children: React.ReactNode
-}
+import { useDevnetContractContext } from '../../providers/DevnetContractProvider';
 
 
 interface ISideBarContents {
@@ -19,11 +13,10 @@ interface ISideBarContents {
     extra_functions: any
 }
 
-const SideBarContents = (props: ISideBarContents) => {
-    const { deployment, interfaces, functions, extra_functions } = props
+export const SideBarContents = (props: ISideBarContents) => {
 
-    const { colorScheme } = useMantineColorScheme()
-    const theme = useMantineTheme()
+    const { deployment, interfaces, functions, extra_functions } = props
+    const { reloadAbi } = useDevnetContractContext()
 
     const form = useForm({
         initialValues: {
@@ -32,11 +25,9 @@ const SideBarContents = (props: ISideBarContents) => {
         }
     })
 
-    const HEADER_HEIGHT = "280px"
-
     return (
-        <Stack h={'100%'} py="md" px="xs">
-            <Box pb="xs" h={HEADER_HEIGHT}>
+        <>
+            <AppShell.Section>
                 <Stack px={'md'} gap={6}>
                     <CustomSidebarNavLink title={"Go to Contracts"} to={`/devnet/contracts/`}
                         icon={<IconCodeAsterix />}
@@ -54,6 +45,7 @@ const SideBarContents = (props: ISideBarContents) => {
                         icon={<IconCodeAsterix />}
                         color={'violet'}
                     />
+                    <Button radius={'md'} variant='light' leftSection={<IconReload />} color='violet' onClick={reloadAbi}>Reload ABI</Button>
                     <SegmentedControl color='violet' radius={'md'} mt="sm" data={[
                         { value: "all", label: "All" },
                         { value: "write", label: "Write" },
@@ -64,13 +56,8 @@ const SideBarContents = (props: ISideBarContents) => {
                         rightSection={form.values.search !== '' ? <IconX onClick={() => form.setFieldValue('search', '')} /> : null}
                     />
                 </Stack>
-            </Box>
-            <Box component={ScrollArea} py={'sm'} scrollbarSize={10} style={{
-                background: isDarkMode(colorScheme) ? theme.colors.dark[7] : theme.colors.indigo[1],
-                // borderRadius: theme.radius.lg
-                borderRadius: "20px 20px 20px 20px",
-                height: `calc(100% - ${HEADER_HEIGHT})`
-            }}>
+            </AppShell.Section>
+            <AppShell.Section grow component={ScrollArea} scrollbarSize={10} py="sm">
                 <Stack gap={6}>
                     <Tabs defaultValue="all" {...form.getInputProps('activeTab')}>
                         <Tabs.Panel value="all">
@@ -80,8 +67,7 @@ const SideBarContents = (props: ISideBarContents) => {
                                         <Box key={`interface_${i}`} mb="lg">
                                             <Stack gap={6}>
                                                 <Group align='baseline' justify='space-between'>
-                                                    <Text size='xs' c="dimmed">Interface</Text>
-                                                    <Title order={3} fw={500}>{limitChars(getInterfaceName(intf?.name), 25, true)}</Title>
+                                                    <Title order={4} fw={500} size={'20px'}>{limitChars(getInterfaceName(intf?.name), 25, true)}</Title>
                                                 </Group>
                                                 {
                                                     intf?.items.filter((item: any) => new RegExp(form.values.search, 'i').test(item.name)).map((func: any, j: number) => (
@@ -140,73 +126,73 @@ const SideBarContents = (props: ISideBarContents) => {
                         </Tabs.Panel>
                     </Tabs>
                 </Stack>
-            </Box>
-        </Stack>
+            </AppShell.Section>
+        </>
     )
 }
 
 
-interface ICustomBox {
-    height: string | number
-    children: ReactNode
-    radius?: any
-}
+// interface ICustomBox {
+//     height: string | number
+//     children: ReactNode
+//     radius?: any
+// }
 
-const CustomBox = (props: ICustomBox) => {
-    const { height, children, radius } = props
-    const { colorScheme } = useMantineColorScheme()
+// const CustomBox = (props: ICustomBox) => {
+//     const { height, children, radius } = props
+//     const { colorScheme } = useMantineColorScheme()
 
-    return (
-        <Box h={height} style={theme => ({
-            background: isDarkMode(colorScheme) ? theme.colors.dark[9] : theme.colors.gray[2],
-            borderRadius: radius ? theme.radius[radius] : theme.radius.md
-        })}>
-            {children}
-        </Box>
-    )
-}
+//     return (
+//         <Box h={height} style={theme => ({
+//             background: isDarkMode(colorScheme) ? theme.colors.dark[9] : theme.colors.gray[2],
+//             borderRadius: radius ? theme.radius[radius] : theme.radius.md
+//         })}>
+//             {children}
+//         </Box>
+//     )
+// }
 
-const DevnetContractAppShell = (props: IContractLayout) => {
-    const { children } = props
-    const { interfaces, deployment, functions, extra_functions } = useDevnetContractContext()
-    const { height } = useViewportSize();
+// const DevnetContractAppShell = (props: IContractLayout) => {
+//     const { children } = props
+//     const { interfaces, deployment, functions, extra_functions } = useDevnetContractContext()
+//     const { height } = useViewportSize();
 
-    const HEIGHT = `${height - 75}px`
+//     const HEIGHT = `${height - 75}px`
 
-    return (
-        <Container size={"xxl"} p={"sm"} style={{ overflow: "hidden" }} h={HEIGHT}>
-            <Grid h={HEIGHT}>
-                <Grid.Col span={3} h={HEIGHT}>
-                    <CustomBox height={'100%'} radius={'lg'}>
-                        <SideBarContents deployment={deployment} interfaces={interfaces} functions={functions} extra_functions={extra_functions} />
-                    </CustomBox>
-                </Grid.Col>
-                <Grid.Col h={HEIGHT} span={9}>
-                    <CustomBox height={'100%'} radius={'lg'}>
-                        <Container size={'xxl'} h={'100%'} py="md" px="0" style={{overflow: "hidden"}}>
-                            <ScrollAreaAutosize h="100%">
-                                <Box px="md">
-                                    {children}
-                                </Box>
-                            </ScrollAreaAutosize>
-                        </Container>
-                    </CustomBox>
-                </Grid.Col>
-            </Grid>
-        </Container>
-    )
-}
-
-
+//     return (
+//         <Container size={"xxl"} p={"sm"} style={{ overflow: "hidden" }} h={HEIGHT}>
+//             <Grid h={HEIGHT}>
+//                 <Grid.Col span={3} h={HEIGHT}>
+//                     <CustomBox height={'100%'} radius={'lg'}>
+//                         <SideBarContents deployment={deployment} interfaces={interfaces} functions={functions} extra_functions={extra_functions} />
+//                     </CustomBox>
+//                 </Grid.Col>
+//                 <Grid.Col h={HEIGHT} span={9}>
+//                     <CustomBox height={'100%'} radius={'lg'}>
+//                         <Container size={'xxl'} h={'100%'} py="md" px="0" style={{overflow: "hidden"}}>
+//                             <ScrollAreaAutosize h="100%">
+//                                 <Box px="md">
+//                                     {children}
+//                                 </Box>
+//                             </ScrollAreaAutosize>
+//                         </Container>
+//                     </CustomBox>
+//                 </Grid.Col>
+//             </Grid>
+//         </Container>
+//     )
+// }
 
 
-export function DevnetContractLayout(props: IContractLayout) {
-    const { children } = props
-    return (
-        <DevnetContractProvider>
-            <DevnetContractAppShell>
-                {children}
-            </DevnetContractAppShell>
-        </DevnetContractProvider>
-    );
-}
+
+
+// export function DevnetContractLayout(props: IContractLayout) {
+//     const { children } = props
+//     return (
+//         <DevnetContractProvider>
+//             <DevnetContractAppShell>
+//                 {children}
+//             </DevnetContractAppShell>
+//         </DevnetContractProvider>
+//     );
+// }

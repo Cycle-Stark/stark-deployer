@@ -12,6 +12,8 @@ import { modals } from "@mantine/modals"
 import { CodeHighlight } from "@mantine/code-highlight"
 import { useDevnetContext } from "../../providers/DevnetProvider"
 import BigNumber from "bignumber.js"
+import CustomCopyBtn from "../../components/handy_tools/CustomCopyBtn"
+import { useNavigate } from "react-router-dom"
 
 
 // const _signMessageTogetSignature = (account: any, message: string, skipDeploy: boolean) => {
@@ -59,7 +61,8 @@ const DeployContract = () => {
 
     const [loading, setLoading] = useState(false)
     const { colorScheme } = useMantineColorScheme()
-    const [_classHash, setClassHash] = useState<string | null>(null)
+    const [classHash, setClassHash] = useState<string | null>(null)
+    const navigate = useNavigate()
 
     const form = useForm<FormValues>({
         initialValues: {
@@ -99,6 +102,30 @@ const DeployContract = () => {
 
     const handleDeclare = async () => {
 
+        setLoading(true)
+        setClassHash(null)
+
+        const sierraAsString = await readFileAsString(form.values.sierraFile as File)
+        const casmAsString = await readFileAsString(form.values.casmFile as File)
+        const casm = JSON.parse(casmAsString)
+
+        const payload: any = {
+            contract: JSON.parse(sierraAsString),
+            casm
+        }
+
+        account.declareIfNot(payload, { maxFee: BigNumber(1).multipliedBy(10 ** 18).toString() }).then((res: any) => {
+            setClassHash(res?.class_hash)
+        }).catch(() => {
+            setClassHash(null)
+        }).finally(() => {
+            setLoading(false)
+        })
+
+    }
+
+    const handleDeploy = async () => {
+
         const call_data: any = {}
         const new_call_data: any = []
         const form_call_data = form.values.callData
@@ -122,53 +149,22 @@ const DeployContract = () => {
                 }
             }
         }
-        
 
-        // if (!account) {
-        //     showNotification({
-        //         message: "Please connect your wallet!",
-        //         color: 'red',
-        //         icon: <IconAlertTriangle />
-        //     })
-        //     return
-        // }
         setLoading(true)
         setClassHash(null)
 
         const sierraAsString = await readFileAsString(form.values.sierraFile as File)
         const casmAsString = await readFileAsString(form.values.casmFile as File)
         const casm = JSON.parse(casmAsString)
-        // const _classHash = hash.computeContractClassHash(sierraAsString)
-        // const compiledClassHash = hash.computeCompiledClassHash(casm)
 
         const contractCallData: CallData = new CallData(JSON.parse(sierraAsString).abi);
         const contractConstructor: Calldata = contractCallData.compile("constructor", new_call_data);
-
-        // const sign: Signature = await signMessageTogetSignature(account, "DECLARE", false)
 
         const payload: any = {
             contract: JSON.parse(sierraAsString),
             casm,
             constructorCalldata: contractConstructor
-            // senderAddress: address,
-            // signature: sign,
-            // _classHash,
-            // compiledClassHash
         }
-
-        // console.log(account)
-        // console.log(provider)
-        // account.getNonce('pending').then((res: any) => {
-        //     console.log('nonce: ', res)
-        // }).catch((err: any) => {
-        //     console.error("Nonce error: ", err)
-        // })
-
-        // account.declareIfNot(payload).then((res: any) => {
-        //     console.log("Result: ", res)
-        // }).catch((err: any) => {
-        //     console.error("Error: ", err)
-        // })
 
         account.declareAndDeploy(payload, { maxFee: BigNumber(1).multipliedBy(10 ** 18).toString() }).then((res: any) => {
             const currentTime = new Date()
@@ -186,6 +182,7 @@ const DeployContract = () => {
                     color: "green",
                     icon: <IconCheck />
                 })
+                navigate(`/devnet/contracts/interact/${res}/dashboard`)
             }).catch((err: any) => {
                 console.log("error", err)
                 showNotification({
@@ -200,101 +197,12 @@ const DeployContract = () => {
         }).catch((err: any) => {
             console.error('errrrr', err)
             setClassHash(null)
+        }).finally(() => {
+            setLoading(false)
         })
 
-        setLoading(false)
     }
 
-
-    // async function deployContract() {
-    //     setLoading(true)
-    //     const call_data: any = {}
-    //     const new_call_data: any = []
-    //     const form_call_data = form.values.callData
-    //     if (form.values.callData.length > 0) {
-    //         for (let i = 0; i < form_call_data.length; i++) {
-    //             const cd = form_call_data[i];
-    //             if (cd['valueType'] === 'bool') {
-    //                 call_data[cd['key_']] = cd['value'] === 'true' ? true : false
-    //                 new_call_data.push(cd['value'] === 'true' ? 'true' : 'false')
-    //             } else if (cd['valueType'] === 'enum') {
-    //                 call_data[`${cd['key_']}`] = new CairoCustomEnum({ [cd['value']]: {} })
-    //                 new_call_data.push(new CairoCustomEnum({ [cd['value']]: {} }))
-    //             }
-    //             else if (cd['valueType'] === 'number') {
-    //                 call_data[`${cd['key_']}`] = BigNumber(cd['value']).toNumber()
-    //                 new_call_data.push(cd['value'])
-    //             }
-    //             else {
-    //                 call_data[`${cd['key_']}`] = cd['value']
-    //                 new_call_data.push(cd['value'])
-    //             }
-    //         }
-    //     }
-
-    //     const sierraAsString = await readFileAsString(form.values.sierraFile as File)
-    //     // const casmAsString = await readFileAsString(form.values.casmFile as File)
-    //     // const casm = JSON.parse(casmAsString) 
-
-
-    //     const contractCallData: CallData = new CallData(JSON.parse(sierraAsString).abi);
-    //     const contractConstructor: Calldata = contractCallData.compile("constructor", new_call_data);
-
-
-    //     // const contractConstructor = CallData.compile(new_call_data)
-    //     // const compiledClassHash = hash.computeCompiledClassHash(casm)
-    //     console.log(account)
-    //     // account?.declareAndDeploy({ contract: sierraAsString, compiledClassHash: compiledClassHash, constructorCalldata: contractConstructor }).then((res: any) => {
-    //     account?.deployContract({ classHash: classHash, constructorCalldata: contractConstructor}, 'SKIP_VALIDATE' ).then((res: any) => {
-    //         const currentTime = new Date()
-    //         console.log("Successful deployment: ", res)
-    //         // const resp = { ...res, date: `${currentTime.toDateString()} ${currentTime.toLocaleTimeString()}`, chainId: chainId }
-    //         // if (snap?.deployments) {
-    //         //     appState.deployments.push(resp)
-    //         // }
-    //         // else {
-    //         //     appState.deployments = [resp]
-    //         // }
-
-    //         db.devnet_contracts.add({
-    //             name: form.values.contractName,
-    //             tx_info: { ...res, class_hash: classHash, call_data },
-    //             date: `${currentTime.toDateString()} ${currentTime.toLocaleTimeString()}`,
-    //             chainId: 'Devnet',
-    //             contract_address: res?.contract_address,
-    //             abi: JSON.parse(sierraAsString)
-    //         }).then((res) => {
-    //             showNotification({
-    //                 message: `New Contract saved with ID: ${res}`,
-    //                 color: "green",
-    //                 icon: <IconCheck />
-    //             })
-    //         }).catch((err: any) => {
-    //             showNotification({
-    //                 message: `Unable to save the new contract: ${err}`,
-    //                 color: "red",
-    //                 icon: <IconX />
-    //             })
-    //         })
-
-    //         form.reset()
-    //         setClassHash(null)
-    //     }).catch((err: any) => {
-    //         console.log("Failed deployment: ", err)
-    //         showNotification({
-    //             message: `Failed to Deploy: ${err}`,
-    //             color: 'red',
-    //             icon: <IconAlertTriangle />,
-    //             variant: 'light'
-    //         })
-    //         // setClassHash(null)
-    //     }).finally(() => {
-    //         setLoading(false)
-    //         // setClassHash(null)
-    //     })
-
-    // }
-    
     const EnumCode = `
 #[derive(Drop)]
 enum Direction {
@@ -362,7 +270,7 @@ enum Direction {
                                     </Group>
                                 </Stack>
                             </Grid.Col>
-                            {/* {
+                            {
                                 classHash ? (
                                     <Grid.Col span={{ md: 12 }}>
                                         <Title order={3} mb="md">Declared Class Hash</Title>
@@ -374,16 +282,16 @@ enum Direction {
                                         </Group>
                                     </Grid.Col>
                                 ) : null
-                            } */}
+                            }
                             <Grid.Col span={{ md: 12 }}>
                                 <Group justify="center">
                                     <Button size="sm" radius={'md'} leftSection={<IconCloudUpload />} type="submit" rightSection={loading ? <Loader color="white" size={'xs'} /> : null}>Deploy</Button>
-                                    {/* {
+                                    {
                                         classHash ?
-                                            <Button size="sm" radius={'md'} leftSection={<IconCloudUpload />} type="button" onClick={deployContract} rightSection={loading ? <Loader color="white" size={'xs'} /> : null}>Deploy</Button>
+                                            <Button size="sm" radius={'md'} leftSection={<IconCloudUpload />} type="button" onClick={handleDeploy} rightSection={loading ? <Loader color="white" size={'xs'} /> : null}>Deploy</Button>
                                             :
                                             null
-                                    } */}
+                                    }
                                 </Group>
                             </Grid.Col>
                         </Grid>
