@@ -107,8 +107,8 @@ const DevnetFunctionPage = () => {
 
             const myCall = contract.populate(func_name, form.values.callData.map((item: any) => item.value))
 
-            // contract[func_name](myCall.calldata, { parseResponse: true }).then((res: any) => {
-            contract[func_name]([1, "test", [[[1],[2],['text'], [true]]], 1], { parseResponse: true }).then((res: any) => {
+            contract[func_name](myCall.calldata, { parseResponse: true }).then((res: any) => {
+            // contract[func_name]([1, "test", [[[1],[2],['text'], [true]]], 1], { parseResponse: true }).then((res: any) => {
                 setResult(res)
                 db.devnet_function_calls.add({
                     function_name: func_name,
