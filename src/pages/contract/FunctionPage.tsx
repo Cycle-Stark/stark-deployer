@@ -92,7 +92,7 @@ const FunctionPage = () => {
         }
     }
 
-    function callFunc() { 
+    function callFunc() {
         setLoading(true)
         setResult(null)
         setError(null)
@@ -101,14 +101,14 @@ const FunctionPage = () => {
             const func = get_function_info(func_name)
             console.log(func)
             const myCall = contract.populate(func_name, form.values.callData.map((it: any) => it.value))
-            contract[func_name](myCall.calldata,  { parseResponse: false, parseRequest: false }).then((res: any) => {
+            contract[func_name](myCall.calldata, { parseResponse: false, parseRequest: false }).then((res: any) => {
                 let val = res
-                if(func?.state_mutability === "view"){
+                if (func?.state_mutability === "view") {
                     val = contract.callData.parse(func_name, res?.result ?? res)
                 }
                 setResult(val)
                 db.function_calls.add({
-                    function_name: func_name, 
+                    function_name: func_name,
                     contract_address: contract_address,
                     calldata: form.values.callData,
                     status: 'success',
@@ -174,7 +174,7 @@ const FunctionPage = () => {
 
     async function loadFuncCalls() {
         try {
-            const res = await db.function_calls.where({ function_name: function_name, contract_address: _contract_address }).reverse().toArray();
+            const res = await db.function_calls.where({ contract_address: _contract_address }).filter(item => item.function_name === function_name).reverse().toArray();
             setFuncCalls(res)
         } catch (error) {
 

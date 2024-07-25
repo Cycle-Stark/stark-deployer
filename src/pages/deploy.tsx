@@ -1,6 +1,6 @@
 import { useSnapshot } from "valtio"
 import appState from "../configs/storage"
-import { ActionIcon, Alert, Anchor, Box, Button, Code, Container, Divider, FileInput, Grid, Group, Loader, NumberInput, Select, Stack, Text, TextInput, Title, useMantineColorScheme } from "@mantine/core"
+import { ActionIcon, Alert, Anchor, Box, Button, Code, Container, Divider, FileInput, Grid, Group, JsonInput, Loader, NumberInput, Select, Stack, Text, Textarea, TextInput, Title, useMantineColorScheme } from "@mantine/core"
 import { useForm } from "@mantine/form"
 import { IconAlertTriangle, IconCheck, IconCloudUpload, IconInfoCircle, IconPlus, IconTrash, IconX } from "@tabler/icons-react"
 import { useAppContext } from "../providers/AppProvider"
@@ -41,6 +41,7 @@ export const CallDataItem = (props: ICallDataItem) => {
                             { value: 'address', label: 'Address' },
                             { value: 'bool', label: 'Boolean' },
                             { value: 'enum', label: 'Enum' },
+                            { value: 'array', label: 'Array' },
                         ]} {...form.getInputProps(`callData.${index}.valueType`)} />
                     </Grid.Col>
                     <Grid.Col span={{ md: 4 }} >
@@ -71,6 +72,11 @@ export const CallDataItem = (props: ICallDataItem) => {
                         {
                             valueType === 'enum' ? (
                                 <TextInput radius={radius} label="Value" {...form.getInputProps(`callData.${index}.value`)} placeholder="Category" />
+                            ) : null
+                        }
+                        {
+                            valueType === 'array' ? (
+                                <JsonInput rows={5} radius={radius} label="Value" {...form.getInputProps(`callData.${index}.value`)} placeholder="[]" />
                             ) : null
                         }
                     </Grid.Col>

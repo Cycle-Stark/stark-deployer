@@ -34,33 +34,13 @@ export class StarkDeployerDexie extends Dexie {
   notes!: Table<INote>
 
   constructor() {
-    super('starkDeployerDb');
+    super('starkDeployerDb1');
     this.version(1).stores({
-      contracts: '++id, name, contract_address' // Primary key and indexed props
-    });
-    this.version(2).stores({
-      function_calls: '++id, function_name, contract_address' // Primary key and indexed props
-    });
-    this.version(3).stores({
-      function_calls: '++id, [contract_address+function_name], function_name, contract_address' // Primary key and indexed props
-    });
-    this.version(4).stores({
-      devnet_contracts: '++id'
-    });
-    this.version(5).stores({
-      devnet_contracts: '++id, name, contract_address'
-    });
-    this.version(6).stores({
-      devnet_function_calls:  '++id, [contract_address+function_name], function_name, contract_address'
-    });
-    this.version(7).stores({
-      notes:  '++id, note'
-    });
-    this.version(8).stores({
-      notes:  '++id, note, title'
-    });
-    this.version(10).stores({
-      contracts:  '++id, name, contract_address, name, chainId'
+      contracts: '++id, name, function_name, contract_address, chainId', // Primary key and indexed props
+      function_calls: '++id, function_name, contract_address', // Primary key and indexed props
+      devnet_contracts: '++id, name, contract_address',
+      devnet_function_calls:  '++id, function_name, contract_address',
+      notes:  '++id, note, title',
     });
   }
 }

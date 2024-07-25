@@ -87,10 +87,43 @@ export const getInterfaceName = (full_intf: string) => {
 
 
 export const getLastItemBasedOnSeparator = (str: string, separator: string): string => {
+
     if (!str) return "";
+    if (str.includes("core::array")) {
+        return 'array'
+    }
     const lastIndex = str.lastIndexOf(separator);
     return lastIndex !== -1 ? str.substring(lastIndex + separator.length) : str;
 };
+
+export const getStruct = (str: string, contract: any) => {
+    const match = str.match(/core::array::Array::<(.+)>/);
+    const arrayType = match ? match[1] : ''
+    if (arrayType) {
+        if (arrayType === "core::integer::u8" || arrayType === "core::integer::u16" || arrayType === "core::integer::u32" || arrayType === "core::integer::u64" || arrayType === "core::integer::u128" || arrayType === "core::integer::u256") {
+            return {
+                type: "number",
+                isPlain: true
+            }
+        } else {
+            const struct = contract?.structs[arrayType]
+            const structObj: any = {
+                isPlain: false,
+                fields: []
+            }
+            struct?.members?.map((member: any) => {
+                let field = {
+                    name: member.name,
+                    type: getLastItemBasedOnSeparator(member.type, "::")
+                }
+                structObj.fields.push(field)
+                // structObj.type = getLastItemBasedOnSeparator(member.type, "::")
+            })
+            return structObj
+        }
+    }
+    return null
+}
 
 
 export function extractTypeFromString(inputString: string) {
@@ -226,7 +259,7 @@ export function JSONSerializer(value: any, _functionInfo?: any, _abi?: any) {
     //         message: "Could not serialize the data"
     //     }
     // }
-    return serialize(value, {space: 4})
+    return serialize(value, { space: 4 })
 }
 
 // export function JSONSerializer(value) {
