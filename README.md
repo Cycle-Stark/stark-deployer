@@ -1,30 +1,23 @@
-# React + TypeScript + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# **Stark Deployer - Your All-in-One Smart Contract Deployment & Interaction Tool for Starknet**
 
-Currently, two official plugins are available:
+[LIVE DEMO](https://stark-deployer.vercel.app/)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Revolutionize your Starknet development workflow with **Stark Deployer** — the ultimate platform for deploying, testing, and managing smart contracts effortlessly.
 
-## Expanding the ESLint configuration
+Say goodbye to deployment headaches and hello to a smoother, more efficient development experience. With Stark Deployer, you can deploy your contracts to **mainnet**, **Sepolia**, or **local devnet** in a single click; no more complex setup or CLI commands.
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+But it doesn’t stop at deployment.
 
-- Configure the top-level `parserOptions` property like this:
+### 🔧 Powerful Features:
 
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
-```
+* **🚀 One-Click Deployment** to Starknet mainnet, Sepolia, and devnet
+* **📥 Import Existing Contracts** from any network (mainnet, testnet, or devnet)
+* **🧠 Smart Contract Interaction** – Call both **read** and **write** functions directly from the UI
+* **🔍 Real-Time Logs & Feedback** to monitor every step of the deployment process
+* **🧪 Streamlined Testing Workflow** to speed up development cycles
+* **✅ Simplified UI** that’s perfect for both beginners and advanced developers
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+Whether you're building, testing, or managing production contracts, Stark Deployer makes it **fast**, **easy**, and **reliable**.
+
+Build smarter. Deploy faster. Interact effortlessly.

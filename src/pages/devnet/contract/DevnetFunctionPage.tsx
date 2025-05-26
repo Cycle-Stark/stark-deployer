@@ -13,8 +13,6 @@ import { useDevnetContractContext } from '../../../providers/DevnetContractProvi
 import { useDevnetContext } from '../../../providers/DevnetProvider'
 import FuncCallsTable from './FuncCallsTable'
 
-// import { json } from 'starknet'
-
 interface FormValues {
     callData: any[]
 }

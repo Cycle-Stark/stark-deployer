@@ -92,6 +92,7 @@ const AppProvider = ({ children }: IAppProvider) => {
             dappName: 'Stark Deployer',
             modalMode: modalMode,
             resultType: 'wallet',
+            provider: provider
         });
 
         if (connection?.wallet?.isConnected) {
