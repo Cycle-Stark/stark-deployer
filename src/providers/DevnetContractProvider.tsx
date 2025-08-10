@@ -92,9 +92,12 @@ const DevnetContractProvider = (props: IAppProvider) => {
 
     const loadDeployment = () => {
         const id: any = contract_id
-        db.devnet_contracts.get(Number(id)).then((res: any) => {
-            setDeployment(res)
-        }).catch(() => { })
+        const numericId = Number(id);
+        if (!isNaN(numericId)) {
+            db.devnet_contracts.get(numericId).then((res: any) => {
+                setDeployment(res)
+            }).catch(() => { })
+        }
     }
 
     const getInterfaces = () => {

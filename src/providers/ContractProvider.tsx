@@ -62,7 +62,10 @@ const ContractProvider = (props: IAppProvider) => {
 
     const snap = useSnapshot(appState, { sync: true });
 
-    const _deployment = useLiveQuery(() => db.contracts.get(Number(contract_id ?? '0')));
+    const _deployment = useLiveQuery(() => {
+        const id = Number(contract_id ?? '0');
+        return !isNaN(id) ? db.contracts.get(id) : undefined;
+    });
     
     const form = useForm({
         initialValues: {
